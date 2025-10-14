@@ -518,7 +518,11 @@
                 if (!query) return text;
                 const normalizedQuery = normalizeText(query);
                 if (!normalizedQuery) return text;
-                const regex = new RegExp(`(${normalizedQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+                // Split query into words and highlight each one
+                const keywords = normalizedQuery.split(' ').filter(k => k.length > 0);
+                if (keywords.length === 0) return text;
+
+                const regex = new RegExp(`(${keywords.join('|')})`, 'gi');
                 return text.replace(regex, `<span class="search-highlight">$1</span>`);
             };
             
@@ -615,13 +619,15 @@
                 
                 if (!normalizedQuery && state.activeTheme === 'tous') return [];
                 
+                const keywords = normalizedQuery.split(' ').filter(k => k.length > 0);
+
                 return state.proverbs.filter(p => {
                     const themeMatch = state.activeTheme === 'tous' || p.theme_norm.includes(state.activeTheme);
                     
-                    const queryMatch = !normalizedQuery || 
-                                       p.kabyle_norm.includes(normalizedQuery) || 
-                                       p.francais_norm.includes(normalizedQuery) ||
-                                       p.theme_norm.includes(normalizedQuery);
+                    const queryMatch = keywords.length === 0 ? true : (() => {
+                        const searchableText = `${p.kabyle_norm} ${p.francais_norm} ${p.theme_norm}`;
+                        return keywords.every(keyword => searchableText.includes(keyword));
+                    })();
                                        
                     return themeMatch && queryMatch;
                 });
@@ -651,7 +657,7 @@
                     dom.resultsFeedback.textContent = `Affichage de ${Math.min(state.displayedProverbs.length + chunkToLoad.length, filteredProverbs.length)} sur ${filteredProverbs.length} proverbes`;
                 }
 
-                renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, !reset);
+                renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, true); // Always append after first load
                 
                 state.displayedProverbs.push(...chunkToLoad);
                 state.currentPage++;
@@ -934,7 +940,7 @@
             // --- GESTION DES ÉVÉNEMENTS ---
             const setupEventListeners = () => {
                 dom.searchInput.addEventListener('input', debounce(() => {
-                    if (dom.searchInput.value.length < 1) {
+                    if (dom.searchInput.value.length < 1 && state.activeTheme === 'tous') {
                         dom.resultsContainer.innerHTML = '';
                         dom.initialLoadMessage.classList.remove('hidden');
                         dom.resultsFeedback.textContent = '';
@@ -944,7 +950,6 @@
                         updateAvailableThemes();
                         return;
                     }
-                    resetThemeFilter(false);
                     loadNextChunk(true);
                 }, 300));
                 
@@ -971,31 +976,47 @@
                 dom.randomBtn.addEventListener('click', () => {
                     if (!state.isCoreDataLoaded) return showToast("Veuillez attendre le chargement des proverbes.", true);
 
-                    dom.searchInput.value = '';
-                    resetThemeFilter(false);
+                    const hasActiveFilter = dom.searchInput.value.trim() || state.activeTheme !== 'tous';
+                    const sourceProverbs = hasActiveFilter ? filterProverbs() : state.proverbs;
+
                     dom.initialLoadMessage.classList.add('hidden');
-                    dom.noResults.classList.add('hidden');
                     dom.loadMoreBtn.classList.add('hidden');
+
+                    if (sourceProverbs.length === 0) {
+                        dom.resultsContainer.innerHTML = '';
+                        dom.noResults.classList.remove('hidden');
+                        dom.resultsFeedback.textContent = 'Aucun proverbe ne correspond pour un tirage aléatoire.';
+                        state.displayedProverbs = [];
+                        updateAvailableThemes();
+                        return;
+                    }
+                    
+                    dom.noResults.classList.add('hidden');
 
                     const randomProverbs = [];
                     const usedIds = new Set();
-                    while(randomProverbs.length < 3 && randomProverbs.length < state.proverbs.length) {
-                        const randomIndex = Math.floor(Math.random() * state.proverbs.length);
-                        const randomProverb = state.proverbs[randomIndex];
+                    const count = Math.min(3, sourceProverbs.length);
+
+                    while (randomProverbs.length < count) {
+                        const randomIndex = Math.floor(Math.random() * sourceProverbs.length);
+                        const randomProverb = sourceProverbs[randomIndex];
                         if (!usedIds.has(randomProverb.id)) {
                             randomProverbs.push(randomProverb);
                             usedIds.add(randomProverb.id);
                         }
                     }
 
-                    if (randomProverbs.length > 0) {
-                         renderChunk(dom.resultsContainer, randomProverbs, '', false);
-                         state.displayedProverbs = randomProverbs;
-                         updateAvailableThemes();
-                         dom.resultsFeedback.textContent = `Affichage de 3 proverbes aléatoires.`;
+                    renderChunk(dom.resultsContainer, randomProverbs, dom.searchInput.value, false);
+                    state.displayedProverbs = randomProverbs;
+                    updateAvailableThemes();
+                    
+                    let feedback = `Affichage de ${count} proverbes aléatoires`;
+                    if (hasActiveFilter) {
+                        feedback += ` correspondant à vos critères.`;
                     } else {
-                        showToast("Impossible de charger des proverbes aléatoires.", true);
+                        feedback += `.`;
                     }
+                    dom.resultsFeedback.textContent = feedback;
                 });
 
                 window.addEventListener('scroll', () => dom.backToTopBtn.classList.toggle('visible', window.scrollY > 300));
@@ -1111,4 +1132,3 @@
     </script>
 </body>
 </html>
-
