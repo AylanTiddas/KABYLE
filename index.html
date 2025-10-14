@@ -474,7 +474,20 @@
             };
             
             // --- FONCTIONS UTILITAIRES ---
-            const normalizeText = (text) => text ? text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : '';
+            const normalizeText = (text) => {
+                if (!text) return '';
+                return text
+                    .toLowerCase()
+                    .replace(/ǧ/g, 'g')
+                    .replace(/č/g, 'c')
+                    .replace(/ṣ/g, 's')
+                    .replace(/ṭ/g, 't')
+                    .replace(/ẓ/g, 'z')
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .trim();
+            };
+
             const debounce = (func, delay) => (...args) => {
                 clearTimeout(state.searchTimeout);
                 state.searchTimeout = setTimeout(() => func(...args), delay);
@@ -600,13 +613,11 @@
                 const query = dom.searchInput.value;
                 const normalizedQuery = normalizeText(query);
                 
-                // Si aucun filtre ni recherche, ne rien afficher pour éviter de charger toute la liste.
                 if (!normalizedQuery && state.activeTheme === 'tous') return [];
                 
                 return state.proverbs.filter(p => {
                     const themeMatch = state.activeTheme === 'tous' || p.theme_norm.includes(state.activeTheme);
                     
-                    // La recherche par mot-clé doit aussi inclure les thèmes.
                     const queryMatch = !normalizedQuery || 
                                        p.kabyle_norm.includes(normalizedQuery) || 
                                        p.francais_norm.includes(normalizedQuery) ||
@@ -994,7 +1005,6 @@
 
                 dom.themeListContainer.addEventListener('click', (e) => {
                     if (e.target.matches('.theme-pill-button')) {
-                         // CORRECTION: Permettre le filtrage par thème même sans recherche initiale
                         state.activeTheme = e.target.dataset.theme;
                         sessionStorage.setItem('inzan_theme_filter', state.activeTheme);
                         dom.themeListContainer.querySelector('.active')?.classList.remove('active');
@@ -1025,7 +1035,7 @@
                          setActiveTab('explorer-tab');
                          setTimeout(() => {
                             dom.searchInput.value = themeToFilter;
-                            resetThemeFilter(false); // Réinitialise le thème actif pour que la recherche textuelle prenne le dessus
+                            resetThemeFilter(false);
                             loadNextChunk(true);
                          }, 100);
                     }
@@ -1066,7 +1076,6 @@
                         return response.json();
                     })
                     .then(data => {
-                        // CORRECTION: Pré-normaliser les textes et les thèmes pour une recherche efficace
                         state.proverbs = data.map((p, index) => ({ 
                             ...p, 
                             id: index,
@@ -1076,14 +1085,12 @@
                         }));
                         state.isCoreDataLoaded = true;
                         
-                        // Proverbe du jour
                         const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
                         const dailyProverb = state.proverbs[dayOfYear % state.proverbs.length];
                         dom.proverbOfTheDayCard.innerHTML = createProverbCardHTML(dailyProverb, true);
 
                         updateAvailableThemes();
                         
-                        // Masquer l'écran de chargement
                         setTimeout(() => dom.splashScreen.classList.add('hidden'), 500);
                     })
                     .catch(error => {
@@ -1104,3 +1111,4 @@
     </script>
 </body>
 </html>
+
