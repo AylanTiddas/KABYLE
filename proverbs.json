@@ -299,7 +299,7 @@
     {"kabyle": "Teḥma lmissa.", "francais": "La partie est chaude.", "theme": "Engagement"},
     {"kabyle": "Times ugwemmaḍ, ur tesseḥmay ameṣṣaḍ.", "francais": "Le feu du versant d’en face ne réchauffe pas les hanches.", "theme": "Acte lointain sans effet"},
     {"kabyle": "Ur ittɣimi, ukured, anda teḥma.", "francais": "La puce évite les lieux torrides.", "theme": "Prudence est mère de sûreté"},
-{"kabyle": "Yir lɛabd am yir qejmur : ittbumbux, ur isseḥmuy.", "francais": "Un être mauvais est pareil à une mauvaise bûche : elle fume mais ne chauffe pas.", "theme": "Inefficacité, Embarras"},
+    {"kabyle": "Yir lɛabd am yir qejmur : ittbumbux, ur isseḥmuy.", "francais": "Un être mauvais est pareil à une mauvaise bûche : elle fume mais ne chauffe pas.", "theme": "Inefficacité, Embarras"},
     {"kabyle": "Iḥnenni umgaṛḍ is, am win n Lbacir ameddaḥ.", "francais": "Il a le cou enflé, comme celui de Bachir le troubadour.", "theme": "Goître"},
     {"kabyle": "Lɛabd ittgalla, Ṛebbi isseḥnat.", "francais": "L’homme jure, Dieu permet le parjure.", "theme": "Pouvoir divin"},
     {"kabyle": "Lqut agi isseḥnat.", "francais": "Cette nourriture fait se parjurer.", "theme": "Qualité"},
@@ -1239,8 +1239,8 @@
     {"kabyle": "Ur cerrek, d win i k iɣelben, neɣ i k yifen.", "francais": "Ne t’associe pas avec plus fort ou plus intelligent.", "theme": "Dépendance"},
     {"kabyle": "Icerrew itt, meṛṛiɣet.", "francais": "Il l’a essuyée salée (sueur).", "theme": "Peine"},
     {"kabyle": "TaƐṛeḍ acrured n tsekkurt, iƐaṛq-as win n tyaziṭ.", "francais": "Elle essaie la démarche de la perdrix, elle oublie celle de la poule.", "theme": "Sanction de l’ambition"},
-    {"kabyle": "Seg ucrured, ar tikli.", "francais": "Des petits pas, à la vraie marche.", "theme": "Progrès"}
-{"kabyle": "ttif win iƐaben, iban, wala win iwumi xeṛben iberdan.", "francais": "Mieux vaut un infirme, on le voit, que celui dont les voies sont brouillées.", "theme": "Handicap, Clarté, Égarement"},
+    {"kabyle": "Seg ucrured, ar tikli.", "francais": "Des petits pas, à la vraie marche.", "theme": "Progrès"},
+    {"kabyle": "ttif win iƐaben, iban, wala win iwumi xeṛben iberdan.", "francais": "Mieux vaut un infirme, on le voit, que celui dont les voies sont brouillées.", "theme": "Handicap, Clarté, Égarement"},
     {"kabyle": "Yir aƐbaṛ, di yir kerṭuc, yir awal, di yir qemmuc.", "francais": "Ridicule coup de feu d’une mauvaise cartouche, piètre parole d’une mauvaise bouche.", "theme": "Parole, Inadéquation, Négativité"},
     {"kabyle": "Aɣyul, menwala iƐabbi fellas.", "francais": "L’âne peut servir au chargement de n’importe qui.", "theme": "Servitude, Utilité, Exploitation"},
     {"kabyle": "Aɣyul n leḥbas, Ɛabbi, u rkeb fellas.", "francais": "L’âne de la communauté, charge-le et monte-le.", "theme": "Abus, Bien commun, Irresponsabilité"},
@@ -2392,6 +2392,7 @@
     {"kabyle": "A d tarew, temẓi, i temɣer.", "francais": "La jeunesse enfante pour la vieillesse.", "theme": "Solidarité des générations, Préparation, Avenir"},
     {"kabyle": "Afus iɛemden i wurɣu, yerɣ meqqar i wayen yelhan", "francais": "La main qui accepte la brûlure, qu’elle se brûle pour le meilleur", "theme": "Sacrifice"}
 ]
+
 
 
 
