@@ -739,7 +739,7 @@
                 const GEMINI_API_KEY = "AIzaSyD3cGyEYYhNbFN6WlMKb5wjpdDqfR8RaN4";
                 if (!GEMINI_API_KEY) throw new Error("La clé API n'est pas configurée dans le code source.");
 
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
                 
                 if (expectJson) payload.generationConfig = { responseMimeType: "application/json" };
 
@@ -778,7 +778,7 @@
                 // Envoyer les données brutes (sans les champs normalisés)
                 const rawProverbs = state.proverbs.map(({ kabyle, francais, theme, explication }, id) => ({ id, kabyle, francais, theme, explication }));
                 
-                const systemPrompt = `Vous êtes un sage kabyle expert en proverbes. Analysez la situation de l'utilisateur et choisissez jusqu'à 2 proverbes les plus pertinents à partir de la liste fournie. Vous devez OBLIGATOIREMENT répondre avec un objet JSON valide et rien d'autre.`;
+                const systemPrompt = `Vous êtes un sage kabyle expert en proverbes. Analysez la situation de l'utilisateur et choisissez jusqu'à 3 proverbes les plus pertinents à partir de la liste fournie. Vous devez OBLIGATOIREMENT répondre avec un objet JSON valide et rien d'autre.`;
                 const userPrompt = `Situation de l'utilisateur: "${context}"\n\nListe des proverbes disponibles (limité pour l'exemple):\n${JSON.stringify(rawProverbs.slice(0, 500))}\n\nChoisissez les proverbes les plus appropriés et répondez UNIQUEMENT avec un objet JSON au format suivant:\n{ "reasoning": "Votre analyse générale de la situation en une phrase.", "proverbs": [ { "id": <id_du_proverbe_1>, "justification": "Pourquoi ce proverbe est pertinent." } ] }`;
                 
                 try {
@@ -1077,3 +1077,4 @@
     </script>
 </body>
 </html>
+
