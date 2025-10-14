@@ -502,6 +502,11 @@
             };
 
             const highlightText = (text, query) => {
+                // *** CORRECTION START ***
+                // Gérer les cas où le texte est nul ou indéfini pour éviter les erreurs.
+                if (!text) return '';
+                // *** CORRECTION END ***
+
                 if (!query) return text;
                 const normalizedQuery = normalizeText(query);
                 const regex = new RegExp(`(?![^<]*>)${normalizedQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}`, 'gi');
@@ -549,8 +554,11 @@
                     const wrapper = document.createElement('div');
                     wrapper.innerHTML = cardHTML;
                     const cardElement = wrapper.firstElementChild;
-                    cardElement.style.animationDelay = `${i * 50}ms`;
-                    return cardElement.outerHTML;
+                    if (cardElement) {
+                        cardElement.style.animationDelay = `${i * 50}ms`;
+                        return cardElement.outerHTML;
+                    }
+                    return ''; // Ne rien retourner si la carte n'a pas pu être créée
                 }).join('');
                 
                 if (append) {
@@ -954,7 +962,6 @@
 
                 dom.goToExplorerBtn.addEventListener('click', () => setActiveTab('explorer-tab'));
                 
-                // CORRECTION: Logique du bouton aléatoire
                 dom.randomBtn.addEventListener('click', () => {
                     if (!state.isCoreDataLoaded) return showToast("Veuillez attendre le chargement des proverbes.", true);
 
