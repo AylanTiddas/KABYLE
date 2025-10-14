@@ -330,7 +330,7 @@
                 <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 min-h-[400px]">
                     <div id="initial-load-message" class="md:col-span-2 xl:col-span-3 text-center p-8 bg-[var(--color-bg-card)] rounded-lg shadow-inner">
                         <span class="loader loader-dark"></span> 
-                        <p class="mt-4 text-lg text-[var(--color-text-light)]">Chargement initial de tous les proverbes (cela ne se fera qu'une fois)...</p>
+                        <p class="mt-4 text-lg text-[var(--color-text-light)]">Chargement de la collection de proverbes...</p>
                     </div>
                 </div>
                 
@@ -425,7 +425,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- CONSTANTES & ÉLÉMENTS DU DOM ---
-            const PROVERBS_PER_PAGE = 50; // La taille de la "page" de proverbes à charger
+            const PROVERBS_PER_PAGE = 50;
             const dom = {
                 html: document.documentElement,
                 splashScreen: document.getElementById('splash-screen'),
@@ -433,8 +433,8 @@
                 clearSearchBtn: document.querySelector('.clear-search-btn'),
                 resultsContainer: document.getElementById('results-container'),
                 resultsFeedback: document.getElementById('results-feedback'),
-                initialLoadMessage: document.getElementById('initial-load-message'), // Nouveau
-                loadMoreBtn: document.getElementById('load-more-btn'), // Nouveau
+                initialLoadMessage: document.getElementById('initial-load-message'),
+                loadMoreBtn: document.getElementById('load-more-btn'),
                 favoritesContainer: document.getElementById('favorites-container'),
                 noResults: document.getElementById('no-results'),
                 noFavorites: document.getElementById('no-favorites'),
@@ -449,10 +449,7 @@
                 quizContainer: document.getElementById('quiz-container'),
                 aboutBtn: document.getElementById('about-btn'),
                 themeToggle: document.getElementById('theme-toggle'),
-                themeIcons: {
-                    light: document.getElementById('theme-icon-light'),
-                    dark: document.getElementById('theme-icon-dark')
-                },
+                themeIcons: { light: document.getElementById('theme-icon-light'), dark: document.getElementById('theme-icon-dark') },
                 modal: {
                     backdrop: document.getElementById('modal-backdrop'),
                     content: document.getElementById('modal-content'),
@@ -471,13 +468,14 @@
             const state = {
                 activeTheme: sessionStorage.getItem('inzan_theme_filter') || 'tous',
                 searchTimeout: null,
-                proverbs: [],             // Contient TOUS les proverbes après le chargement initial
+                proverbs: [],
                 favorites: new Set(JSON.parse(localStorage.getItem('inzan_favorites')) || []),
                 uniqueThemes: [],
                 trapFocusHandler: null,
-                isFullyLoaded: false,     // Vrai après le succès du fetch
-                currentPage: 0,           // Numéro de la page affichée
-                displayedProverbs: []     // Proverbes actuellement affichés dans l'onglet Explorer
+                isDataReady: false,      // Vrai quand les données sont téléchargées et traitées
+                isCoreDataLoaded: false, // Vrai dès que le fetch est terminé
+                currentPage: 0,
+                displayedProverbs: []
             };
             
             // --- FONCTIONS UTILITAIRES ---
@@ -543,7 +541,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                                     </button>
                                     <button class="action-btn share-btn p-1 hover:text-[var(--color-primary)]" aria-label="Partager le proverbe">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6.002l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.367a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6.002l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.367a3 3 0 105.367 2.684 3 3 0 00-5.367 2.684z" /></svg>
                                     </button>
                                </div>
                             </div>
@@ -568,8 +566,8 @@
             };
 
             // --- LOGIQUE DE L'ONGLET EXPLORER (FILTRES/PAGINATION) ---
-            
             const updateLoadMoreButton = (totalFilteredCount) => {
+                if (!state.isCoreDataLoaded) return;
                 const isSearchingOrFiltering = dom.searchInput.value || state.activeTheme !== 'tous';
                 
                 if (isSearchingOrFiltering || state.displayedProverbs.length >= totalFilteredCount) {
@@ -582,21 +580,20 @@
             };
 
             const filterProverbs = () => {
-                if (!state.isFullyLoaded) return [];
+                if (!state.isCoreDataLoaded) return [];
 
                 const query = dom.searchInput.value;
                 const normalizedQuery = normalizeText(query);
                 
-                const filtered = state.proverbs.filter(p => {
+                return state.proverbs.filter(p => {
                     const themeMatch = state.activeTheme === 'tous' || normalizeText(p.theme).includes(state.activeTheme);
-                    const queryMatch = !normalizedQuery || normalizeText(p.kabyle).includes(normalizedQuery) || normalizeText(p.francais).includes(normalizedQuery);
+                    const queryMatch = !normalizedQuery || p.kabyle_norm.includes(normalizedQuery) || p.francais_norm.includes(normalizedQuery);
                     return themeMatch && queryMatch;
                 });
-                return filtered;
             };
 
             const loadNextChunk = (reset = false) => {
-                if (!state.isFullyLoaded) return;
+                if (!state.isCoreDataLoaded) return;
                 
                 const filteredProverbs = filterProverbs();
                 
@@ -604,38 +601,31 @@
                     state.currentPage = 0;
                     state.displayedProverbs = [];
                     dom.resultsContainer.innerHTML = '';
+                    dom.initialLoadMessage.classList.add('hidden');
                 }
                 
                 const startIndex = state.currentPage * PROVERBS_PER_PAGE;
                 const endIndex = startIndex + PROVERBS_PER_PAGE;
-                
                 const chunkToLoad = filteredProverbs.slice(startIndex, endIndex);
 
-                // Si le chunk est vide et qu'on n'est pas en mode reset, c'est la fin
                 if (chunkToLoad.length === 0 && !reset) {
                     updateLoadMoreButton(filteredProverbs.length);
                     return; 
                 }
                 
-                // Mettre à jour l'affichage
                 dom.noResults.classList.toggle('hidden', filteredProverbs.length > 0);
                 dom.resultsFeedback.textContent = `Affichage de ${Math.min(state.displayedProverbs.length + chunkToLoad.length, filteredProverbs.length)} sur ${filteredProverbs.length} proverbes`;
 
-                if (reset) {
-                    renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, false);
-                } else {
-                    renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, true);
-                }
+                renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, !reset);
                 
                 state.displayedProverbs.push(...chunkToLoad);
                 state.currentPage++;
-
                 updateLoadMoreButton(filteredProverbs.length);
             };
 
             // --- FONCTIONS D'AFFICHAGE ET DE NAVIGATION ---
             const renderFavorites = () => {
-                if (!state.isFullyLoaded) {
+                if (!state.isCoreDataLoaded) {
                     dom.favoritesContainer.innerHTML = `<div class="md:col-span-2 xl:col-span-3 text-center p-8 text-[var(--color-text-light)]"><span class="loader loader-dark"></span> <p class="mt-2">Chargement des données en cours...</p></div>`;
                     return;
                 }
@@ -657,12 +647,18 @@
             };
 
             const setActiveTab = (tabId) => {
+                // Vérification pour les onglets nécessitant des données complètes
+                if (['quiz-tab', 'ai-sage-tab'].includes(tabId) && !state.isDataReady) {
+                    showToast("Préparation des données, veuillez patienter...", true);
+                    return;
+                }
+
                 dom.tabContents.forEach(content => content.classList.toggle('active', content.id === tabId));
                 dom.navButtons.forEach(button => button.classList.toggle('active', button.dataset.tab === tabId));
                 
-                if (tabId === 'explorer-tab') loadNextChunk(true); // Toujours recommencer au début de l'onglet Explorer
+                if (tabId === 'explorer-tab' && state.displayedProverbs.length === 0) loadNextChunk(true);
                 if (tabId === 'favoris-tab') renderFavorites();
-                if (tabId === 'quiz-tab' && state.isFullyLoaded && !dom.quizContainer.querySelector('#next-quiz-btn')) startQuiz();
+                if (tabId === 'quiz-tab' && state.isDataReady && !dom.quizContainer.querySelector('#next-quiz-btn')) startQuiz();
 
                 if (document.body.clientWidth < 640) window.scrollTo({ top: 0, behavior: 'smooth' });
             };
@@ -687,10 +683,7 @@
                 }
             };
             
-            // --- LOGIQUE API (INCHANGÉE) et MODALE ---
-            // ... (Fonctions openModal, closeModal, getProverbExplanation, callGeminiAPI, getAISuggestion, Quiz: startQuiz, generateMeaningQuestion, generateThemeQuestion, handleQuizAnswer sont omises pour la concision, mais elles sont nécessaires et devraient être copiées depuis le code précédent)
-            // Note: Le code ici suppose que ces fonctions existent et sont correctement définies.
-
+            // --- MODALE ET LOGIQUE API ---
             const openModal = (title, bodyContent) => {
                 dom.modal.title.textContent = title;
                 dom.modal.body.innerHTML = bodyContent;
@@ -706,17 +699,8 @@
 
                 state.trapFocusHandler = (e) => {
                     if (e.key === 'Tab') {
-                        if (e.shiftKey) { 
-                            if (document.activeElement === firstElement) {
-                                lastElement.focus();
-                                e.preventDefault();
-                            }
-                        } else { 
-                            if (document.activeElement === lastElement) {
-                                firstElement.focus();
-                                e.preventDefault();
-                            }
-                        }
+                        if (e.shiftKey) { if (document.activeElement === firstElement) { lastElement.focus(); e.preventDefault(); } } 
+                        else { if (document.activeElement === lastElement) { firstElement.focus(); e.preventDefault(); } }
                     } else if (e.key === 'Escape') {
                         closeModal();
                     }
@@ -735,39 +719,22 @@
             };
             
             const callGeminiAPI = async (payload, expectJson = false) => {
-                const GEMINI_API_KEY = "AIzaSyD3cGyEYYhNbFN6WlMKb5wjpdDqfR8RaN4"; 
-                
-                if (!GEMINI_API_KEY) {
-                    const errorMessage = "La clé API n'est pas configurée dans le code source.";
-                    console.error(errorMessage);
-                    throw new Error(errorMessage);
-                }
+                const GEMINI_API_KEY = "AIzaSyD3cGyEYYhNbFN6WlMKb5wjpdDqfR8RaN4";
+                if (!GEMINI_API_KEY) throw new Error("La clé API n'est pas configurée dans le code source.");
 
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
                 
-                if (expectJson) {
-                    payload.generationConfig = { responseMimeType: "application/json" };
-                }
+                if (expectJson) payload.generationConfig = { responseMimeType: "application/json" };
 
-                const response = await fetch(API_URL, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify(payload) 
-                });
-                
+                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error("Erreur API Gemini:", errorData);
                     throw new Error(errorData?.error?.message || `Erreur HTTP ${response.status}`);
                 }
                 
                 const result = await response.json();
                 const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if (!textResponse) {
-                    console.error("Réponse API inattendue:", result);
-                    throw new Error("Réponse de l'API malformée ou vide.");
-                }
+                if (!textResponse) throw new Error("Réponse de l'API malformée ou vide.");
                 
                 return expectJson ? JSON.parse(textResponse) : textResponse;
             };
@@ -787,10 +754,6 @@
             };
             
             const getAISuggestion = async (context) => {
-                if (!state.isFullyLoaded) {
-                    dom.ai.resultFeedback.innerHTML = `<p class="text-red-500 text-center">Veuillez attendre le chargement complet de la base de données de proverbes avant d'utiliser l'IA.</p>`;
-                    return;
-                }
                 dom.ai.suggestBtn.disabled = true;
                 dom.ai.suggestBtn.innerHTML = `<span class="loader"></span> <span>Analyse...</span>`;
                 dom.ai.resultFeedback.innerHTML = '';
@@ -829,11 +792,8 @@
                 }
             };
             
+            // --- LOGIQUE DU QUIZ ---
             const startQuiz = () => {
-                if (!state.isFullyLoaded || state.proverbs.length < 50) {
-                    dom.quizContainer.innerHTML = `<p class="text-red-500 text-center">Impossible de démarrer le quiz. Base de données non chargée ou trop petite.</p>`;
-                    return;
-                }
                 const questionType = Math.random() < 0.5 ? 'meaning' : 'theme';
                 if (questionType === 'meaning') generateMeaningQuestion();
                 else generateThemeQuestion();
@@ -855,8 +815,7 @@
                     </div><div id="quiz-feedback" class="mt-6 text-center"></div>`;
                 
                 dom.quizContainer.querySelector('#quiz-options').addEventListener('click', (e) => {
-                    const option = e.target.closest('.quiz-option');
-                    if(option) handleQuizAnswer(option, correctAnswer, 'meaning');
+                    if(e.target.closest('.quiz-option')) handleQuizAnswer(e.target.closest('.quiz-option'), correctAnswer, 'meaning');
                 });
             };
 
@@ -882,21 +841,20 @@
                     </div><div id="quiz-feedback" class="mt-6 text-center"></div>`;
 
                 dom.quizContainer.querySelector('#quiz-options').addEventListener('click', (e) => {
-                    const option = e.target.closest('.quiz-option');
-                    if(option) handleQuizAnswer(option, correctAnswer, 'theme');
+                    if(e.target.closest('.quiz-option')) handleQuizAnswer(e.target.closest('.quiz-option'), correctAnswer, 'theme');
                 });
             };
             
             const handleQuizAnswer = (selectedElement, correctAnswer, type) => {
-                let isCorrect;
-                if (type === 'meaning') isCorrect = parseInt(selectedElement.dataset.id) === correctAnswer.id;
-                else isCorrect = normalizeText(selectedElement.dataset.theme) === normalizeText(correctAnswer);
+                const isCorrect = (type === 'meaning')
+                    ? parseInt(selectedElement.dataset.id) === correctAnswer.id
+                    : normalizeText(selectedElement.dataset.theme) === normalizeText(correctAnswer);
 
                 document.querySelectorAll('.quiz-option').forEach(el => {
                     el.setAttribute('disabled', true);
-                    let elIsCorrect;
-                    if (type === 'meaning') elIsCorrect = parseInt(el.dataset.id) === correctAnswer.id;
-                    else elIsCorrect = normalizeText(el.dataset.theme) === normalizeText(correctAnswer);
+                    const elIsCorrect = (type === 'meaning')
+                        ? parseInt(el.dataset.id) === correctAnswer.id
+                        : normalizeText(el.dataset.theme) === normalizeText(correctAnswer);
                     if(elIsCorrect) el.classList.add('correct');
                 });
                 
@@ -904,7 +862,6 @@
                 
                 const feedback = dom.quizContainer.querySelector('#quiz-feedback');
                 const correctAnswerText = type === 'meaning' ? correctAnswer.francais : correctAnswer;
-
                 feedback.innerHTML = `<p class="text-xl font-bold ${isCorrect ? 'text-green-500' : 'text-red-500'}">${isCorrect ? 'Bravo !' : 'Dommage !'}</p>
                     ${!isCorrect ? `<p class="mt-2">La bonne réponse était : <strong class="font-semibold">"${correctAnswerText}"</strong></p>` : ''}
                     <button id="next-quiz-btn" class="mt-4 px-6 py-2 bg-[var(--color-primary)] text-white font-semibold rounded-lg shadow-md hover:scale-105 transition-transform">Question suivante</button>`;
@@ -918,7 +875,7 @@
             const setupEventListeners = () => {
                 dom.searchInput.addEventListener('input', debounce(() => {
                     if (dom.searchInput.value) resetThemeFilter(false);
-                    loadNextChunk(true); // Relancer la recherche/le filtre depuis la première page
+                    loadNextChunk(true);
                 }, 300));
                 
                 dom.clearSearchBtn.addEventListener('click', () => {
@@ -936,28 +893,20 @@
                 dom.goToExplorerBtn.addEventListener('click', () => setActiveTab('explorer-tab'));
                 
                 dom.randomBtn.addEventListener('click', () => {
-                    if (!state.isFullyLoaded) return showToast("Veuillez attendre le chargement complet des proverbes.", true);
+                    if (!state.isCoreDataLoaded) return showToast("Veuillez attendre le chargement des proverbes.", true);
                     if (dom.searchInput.value !== '') dom.searchInput.value = '';
                     resetThemeFilter(false);
 
                     setTimeout(() => {
-                        loadNextChunk(true); // Charger la première page si elle n'est pas déjà là
-
+                        loadNextChunk(true);
                         const filteredProverbs = filterProverbs();
                         if (filteredProverbs.length > 0) {
                             const randomProverb = filteredProverbs[Math.floor(Math.random() * filteredProverbs.length)];
-                            
-                            // Déterminer la page où se trouve le proverbe aléatoire
                             const randomIndex = filteredProverbs.indexOf(randomProverb);
                             const targetPage = Math.floor(randomIndex / PROVERBS_PER_PAGE);
-                            const targetIndexInChunk = randomIndex % PROVERBS_PER_PAGE;
                             
-                            // Charger toutes les pages jusqu'à la page cible
-                            while(state.currentPage <= targetPage) {
-                                loadNextChunk(false);
-                            }
+                            while(state.currentPage <= targetPage) loadNextChunk(false);
 
-                            // Attendre que le rendu se fasse avant de scroll
                             setTimeout(() => {
                                 const randomCard = document.getElementById(`proverb-${randomProverb.id}`);
                                 if (randomCard) {
@@ -966,7 +915,6 @@
                                     setTimeout(() => randomCard.classList.remove('highlight'), 2000);
                                 }
                             }, 100);
-
                         } else {
                             showToast("Aucun proverbe à afficher.", true);
                         }
@@ -987,7 +935,7 @@
                         dom.themeListContainer.querySelector('.active')?.classList.remove('active');
                         e.target.classList.add('active');
                         e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                        loadNextChunk(true); // Charger la première page du nouveau filtre
+                        loadNextChunk(true);
                     }
                 });
 
@@ -1008,12 +956,8 @@
                     }
                     if (e.target.closest('.card-theme-badge')) {
                          e.stopPropagation();
-                         setActiveTab('explorer-tab');
-                         dom.searchInput.value = ''; // Réinitialiser la recherche
                          const themeToFilter = e.target.closest('.card-theme-badge').dataset.theme;
-                         state.activeTheme = themeToFilter; // Appliquer le filtre directement
-                         sessionStorage.setItem('inzan_theme_filter', themeToFilter);
-                         // Attendre que le tab soit actif pour mettre à jour le bouton
+                         setActiveTab('explorer-tab');
                          setTimeout(() => dom.themeListContainer.querySelector(`[data-theme="${themeToFilter}"]`)?.click(), 100);
                     }
                 });
@@ -1037,19 +981,13 @@
                 });
             };
             
-            // --- INITIALISATION COMPLÈTE (THÈMES, ETC.) ---
-            const initializeFullAppAfterDataLoad = () => {
-                if (state.isFullyLoaded) return;
-                
-                console.log(`Données chargées : ${state.proverbs.length} proverbes.`);
-                state.isFullyLoaded = true;
+            // --- NOUVELLE FONCTION DE TRAITEMENT EN ARRIÈRE-PLAN ---
+            const processHeavyDataInBackground = () => {
+                // Cette fonction s'exécute après que l'UI initiale soit chargée,
+                // pour ne pas bloquer le navigateur.
+                console.log("Démarrage du traitement lourd en arrière-plan...");
 
-                // 1. Gérer l'affichage du proverbe du jour
-                const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-                const dailyProverb = state.proverbs[dayOfYear % state.proverbs.length];
-                dom.proverbOfTheDayCard.innerHTML = createProverbCardHTML(dailyProverb, true);
-
-                // 2. Générer la liste des thèmes pour le filtre
+                // 1. Générer la liste des thèmes pour le filtre
                 const allThemesRaw = state.proverbs.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean));
                 const uniqueNormalizedThemes = [...new Map(allThemesRaw.map(t => [normalizeText(t), t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()])).entries()];
                 uniqueNormalizedThemes.sort((a, b) => a[1].localeCompare(b[1]));
@@ -1057,24 +995,24 @@
                 dom.themeListContainer.innerHTML = `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="tous">Tous</button>` + uniqueNormalizedThemes.map(([norm, disp]) => `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="${norm}">${disp}</button>`).join('');
                 
                 const activeThemeButton = dom.themeListContainer.querySelector(`[data-theme="${state.activeTheme}"]`);
-                if (activeThemeButton) {
-                     activeThemeButton.classList.add('active');
-                } else {
-                    resetThemeFilter(false);
-                }
+                if (activeThemeButton) activeThemeButton.classList.add('active');
+                else resetThemeFilter(false);
                
                 state.uniqueThemes = [...new Set(allThemesRaw.map(t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()))];
                 
-                // 3. Masquer le message de chargement et afficher la première page si l'onglet Explorer est actif
-                dom.initialLoadMessage.classList.add('hidden');
-                if (document.getElementById('explorer-tab').classList.contains('active')) {
-                    loadNextChunk(true);
+                // 2. Marquer les données comme entièrement prêtes
+                state.isDataReady = true;
+                console.log("Traitement en arrière-plan terminé. Le Quiz et l'IA sont prêts.");
+
+                // 3. Préparer le Quiz si l'onglet est déjà actif
+                if (document.getElementById('quiz-tab').classList.contains('active')) {
+                    startQuiz();
                 }
             };
 
+
             // --- PROCESSUS DE DÉMARRAGE ---
             const main = () => {
-                // Thème
                 const savedTheme = localStorage.getItem('inzan_theme') || 'light';
                 dom.html.classList.toggle('dark', savedTheme === 'dark');
                 dom.themeIcons.light.classList.toggle('hidden', savedTheme === 'dark');
@@ -1083,31 +1021,49 @@
                 setupEventListeners();
                 setActiveTab('accueil-tab'); 
                 
-                // Lancer le chargement du JSON en arrière-plan
                 fetch('proverbs.json')
                     .then(response => {
                         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         return response.json();
                     })
                     .then(data => {
-                        // Ajouter un ID unique et normaliser les données (traitement unique et inévitablement long)
+                        // Traitement initial rapide
                         state.proverbs = data.map((p, index) => ({ 
                             ...p, 
                             id: index,
-                            kabyle_norm: normalizeText(p.kabyle), // Précalculer pour la recherche future
-                            francais_norm: normalizeText(p.francais) // Précalculer pour la recherche future
+                            kabyle_norm: normalizeText(p.kabyle),
+                            francais_norm: normalizeText(p.francais)
                         }));
+                        state.isCoreDataLoaded = true;
                         
-                        initializeFullAppAfterDataLoad(); // Le reste de l'initialisation
-                        setTimeout(() => dom.splashScreen.classList.add('hidden'), 1500);
+                        // **AFFICHAGE IMMÉDIAT**
+                        // 1. Proverbe du jour
+                        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+                        const dailyProverb = state.proverbs[dayOfYear % state.proverbs.length];
+                        dom.proverbOfTheDayCard.innerHTML = createProverbCardHTML(dailyProverb, true);
+
+                        // 2. Première page de l'explorateur (si c'est l'onglet actif)
+                        if (document.getElementById('explorer-tab').classList.contains('active')) {
+                             loadNextChunk(true);
+                        } else {
+                            dom.initialLoadMessage.classList.add('hidden');
+                        }
+
+                        // 3. Lancement du traitement lourd en différé
+                        setTimeout(processHeavyDataInBackground, 100); 
+
+                        // 4. Masquer l'écran de chargement
+                        setTimeout(() => dom.splashScreen.classList.add('hidden'), 500);
                     })
                     .catch(error => {
                         console.error("Could not load proverbs:", error);
-                        // Afficher l'erreur dans l'UI sans bloquer
-                        dom.initialLoadMessage.innerHTML = `<h1 class="text-2xl font-bold text-red-600">Erreur de chargement</h1>
+                        const errorMessage = `<h1 class="text-2xl font-bold text-red-600">Erreur de chargement</h1>
                             <p class="text-red-500 mt-2">Impossible de charger la banque de proverbes (proverbs.json). <br> ${error.message}</p>
                             <p class="mt-4 text-[var(--color-text-light)]">Veuillez vérifier que le fichier est bien présent et non corrompu.</p>`;
+                        dom.initialLoadMessage.innerHTML = errorMessage;
                         dom.proverbOfTheDayCard.innerHTML = `<p class="text-center text-red-500">Erreur de chargement.</p>`;
+                        dom.themeListContainer.innerHTML = `<p class="text-center text-red-500 text-sm">Erreur.</p>`;
+                        dom.quizContainer.innerHTML = `<p class="text-center text-red-500">Erreur de chargement des données.</p>`;
                         setTimeout(() => dom.splashScreen.classList.add('hidden'), 100);
                     });
             };
