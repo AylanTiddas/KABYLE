@@ -438,10 +438,11 @@
             const state = {
                 activeTheme: sessionStorage.getItem('inzan_theme_filter') || 'tous',
                 searchTimeout: null,
-                proverbs: [], // Will be populated from JSON
+                proverbs: [],
                 favorites: new Set(JSON.parse(localStorage.getItem('inzan_favorites')) || []),
                 uniqueThemes: [],
-                trapFocusHandler: null 
+                trapFocusHandler: null,
+                isFullyInitialized: false // NOUVEAU: Flag pour le traitement lourd
             };
             
             // --- FONCTIONS UTILITAIRES ---
@@ -476,7 +477,6 @@
             const highlightText = (text, query) => {
                 if (!query) return text;
                 const normalizedQuery = normalizeText(query);
-                // Regex to find the query but not inside an HTML tag
                 const regex = new RegExp(`(?![^<]*>)${normalizedQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}`, 'gi');
                 return text.replace(regex, match => `<span class="search-highlight">${match}</span>`);
             };
@@ -540,7 +540,6 @@
                 
                 renderProverbs(dom.resultsContainer, filteredProverbs, query, dom.noResults);
 
-                // Update results feedback
                 const count = filteredProverbs.length;
                 if (query || state.activeTheme !== 'tous') {
                     dom.resultsFeedback.textContent = `${count} proverbe${count !== 1 ? 's' : ''} trouvé${count !== 1 ? 's' : ''}`;
@@ -588,12 +587,17 @@
 
             // --- LOGIQUE DE NAVIGATION & MODALE ---
             const setActiveTab = (tabId) => {
+                // MODIFIÉ: On vérifie si l'initialisation lourde doit être faite
+                if ((tabId === 'explorer-tab' || tabId === 'quiz-tab') && !state.isFullyInitialized) {
+                    initializeFullApp();
+                }
+
                 dom.tabContents.forEach(content => content.classList.toggle('active', content.id === tabId));
                 dom.navButtons.forEach(button => button.classList.toggle('active', button.dataset.tab === tabId));
                 
-                if (tabId === 'explorer-tab') updateDisplay();
+                if (tabId === 'explorer-tab' && state.isFullyInitialized) updateDisplay();
                 if (tabId === 'favoris-tab') renderFavorites();
-                if (tabId === 'quiz-tab' && !dom.quizContainer.innerHTML.includes('quiz-option')) startQuiz();
+                if (tabId === 'quiz-tab' && state.isFullyInitialized && !dom.quizContainer.innerHTML.includes('quiz-option')) startQuiz();
 
                 if (document.body.clientWidth < 640) window.scrollTo({ top: 0, behavior: 'smooth' });
             };
@@ -736,13 +740,9 @@
             
             // --- Logique du Quiz ---
             const startQuiz = () => {
-                const questionType = Math.random() < 0.5 ? 'meaning' : 'theme'; // 50% de chance pour chaque type
-                
-                if (questionType === 'meaning') {
-                    generateMeaningQuestion();
-                } else {
-                    generateThemeQuestion();
-                }
+                const questionType = Math.random() < 0.5 ? 'meaning' : 'theme';
+                if (questionType === 'meaning') generateMeaningQuestion();
+                else generateThemeQuestion();
             };
 
             const generateMeaningQuestion = () => {
@@ -774,9 +774,7 @@
                 let options = [correctAnswer];
                 while (options.length < 4) {
                     const randomTheme = state.uniqueThemes[Math.floor(Math.random() * state.uniqueThemes.length)];
-                    if (!options.includes(randomTheme)) {
-                        options.push(randomTheme);
-                    }
+                    if (!options.includes(randomTheme)) options.push(randomTheme);
                 }
                 options.sort(() => Math.random() - 0.5);
 
@@ -797,20 +795,14 @@
             
             const handleQuizAnswer = (selectedElement, correctAnswer, type) => {
                 let isCorrect;
-                if (type === 'meaning') {
-                    isCorrect = parseInt(selectedElement.dataset.id) === correctAnswer.id;
-                } else { // type === 'theme'
-                    isCorrect = normalizeText(selectedElement.dataset.theme) === normalizeText(correctAnswer);
-                }
+                if (type === 'meaning') isCorrect = parseInt(selectedElement.dataset.id) === correctAnswer.id;
+                else isCorrect = normalizeText(selectedElement.dataset.theme) === normalizeText(correctAnswer);
 
                 document.querySelectorAll('.quiz-option').forEach(el => {
                     el.setAttribute('disabled', true);
                     let elIsCorrect;
-                    if (type === 'meaning') {
-                        elIsCorrect = parseInt(el.dataset.id) === correctAnswer.id;
-                    } else {
-                        elIsCorrect = normalizeText(el.dataset.theme) === normalizeText(correctAnswer);
-                    }
+                    if (type === 'meaning') elIsCorrect = parseInt(el.dataset.id) === correctAnswer.id;
+                    else elIsCorrect = normalizeText(el.dataset.theme) === normalizeText(correctAnswer);
                     if(elIsCorrect) el.classList.add('correct');
                 });
                 
@@ -831,10 +823,7 @@
             // --- GESTION DES ÉVÉNEMENTS ---
             const setupEventListeners = () => {
                 dom.searchInput.addEventListener('input', debounce(() => {
-                    if (dom.searchInput.value) {
-                         // When user types, reset theme filter to 'tous' for a global search
-                        resetThemeFilter(false); // false to prevent double rendering
-                    }
+                    if (dom.searchInput.value) resetThemeFilter(false);
                     updateDisplay();
                 }, 300));
                 
@@ -847,13 +836,11 @@
                 dom.goToExplorerBtn.addEventListener('click', () => setActiveTab('explorer-tab'));
                 
                 dom.randomBtn.addEventListener('click', () => {
-                    if (dom.searchInput.value !== '') {
-                        dom.searchInput.value = '';
-                    }
+                    if (dom.searchInput.value !== '') dom.searchInput.value = '';
                     resetThemeFilter(false);
 
                     setTimeout(() => {
-                         updateDisplay(); // Ensure the display is up to date before selecting
+                        updateDisplay();
                         const visibleProverbs = Array.from(dom.resultsContainer.children);
                         if (visibleProverbs.length > 0) {
                             const randomCard = visibleProverbs[Math.floor(Math.random() * visibleProverbs.length)];
@@ -874,11 +861,7 @@
 
                 dom.themeListContainer.addEventListener('click', (e) => {
                     if (e.target.matches('.theme-pill-button')) {
-                        // Clear search input when a theme is manually selected
-                        if (dom.searchInput.value) {
-                            dom.searchInput.value = '';
-                        }
-                        
+                        if (dom.searchInput.value) dom.searchInput.value = '';
                         state.activeTheme = e.target.dataset.theme;
                         sessionStorage.setItem('inzan_theme_filter', state.activeTheme);
                         dom.themeListContainer.querySelector('.active')?.classList.remove('active');
@@ -898,19 +881,10 @@
 
                     if (e.target.closest('.explain-btn')) getProverbExplanation(proverb);
                     if (e.target.closest('.favorite-btn')) toggleFavorite(proverbId);
-                    if (e.target.closest('.copy-btn')) {
-                        navigator.clipboard.writeText(`« ${proverb.kabyle} »\n— ${proverb.francais}`).then(() => showToast("✅ Proverbe copié !"));
-                    }
+                    if (e.target.closest('.copy-btn')) navigator.clipboard.writeText(`« ${proverb.kabyle} »\n— ${proverb.francais}`).then(() => showToast("✅ Proverbe copié !"));
                     if (e.target.closest('.share-btn')) {
-                        if (navigator.share) {
-                            navigator.share({
-                                title: 'Proverbe Kabyle',
-                                text: `Découvrez ce proverbe kabyle : « ${proverb.kabyle} »\n— ${proverb.francais}`,
-                                url: window.location.href,
-                            }).catch(console.error);
-                        } else {
-                            showToast("Le partage n'est pas supporté sur ce navigateur.", true);
-                        }
+                        if (navigator.share) navigator.share({ title: 'Proverbe Kabyle', text: `Découvrez ce proverbe kabyle : « ${proverb.kabyle} »\n— ${proverb.francais}`, url: window.location.href }).catch(console.error);
+                        else showToast("Le partage n'est pas supporté sur ce navigateur.", true);
                     }
                     if (e.target.closest('.card-theme-badge')) {
                          e.stopPropagation();
@@ -938,15 +912,39 @@
                 });
             };
             
-            // --- INITIALISATION DE L'APPLICATION ---
+            // NOUVELLE FONCTION: Traitement lourd, exécuté une seule fois
+            const initializeFullApp = () => {
+                if (state.isFullyInitialized) return;
+                
+                console.log("Initialisation complète de l'application (thèmes, quiz)...");
+
+                const allThemesRaw = state.proverbs.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean));
+                const uniqueNormalizedThemes = [...new Map(allThemesRaw.map(t => [normalizeText(t), t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()])).entries()];
+                uniqueNormalizedThemes.sort((a, b) => a[1].localeCompare(b[1]));
+
+                dom.themeListContainer.innerHTML = `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="tous">Tous</button>` + uniqueNormalizedThemes.map(([norm, disp]) => `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="${norm}">${disp}</button>`).join('');
+                
+                const activeThemeButton = dom.themeListContainer.querySelector(`[data-theme="${state.activeTheme}"]`);
+                if (activeThemeButton) {
+                     activeThemeButton.classList.add('active');
+                } else {
+                    // Fallback si le thème sauvegardé n'existe plus
+                    resetThemeFilter(false);
+                }
+               
+                state.uniqueThemes = [...new Set(allThemesRaw.map(t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()))];
+                
+                state.isFullyInitialized = true; // Marquer comme initialisé
+                
+                // Mettre à jour l'affichage de l'onglet explorer qui vient d'être cliqué
+                updateDisplay(); 
+            };
+
+            // --- INITIALISATION DE L'APPLICATION (LÉGÈRE) ---
             const main = (proverbsData) => {
-                 // Assign IDs to proverbs and store them in the state
                 state.proverbs = proverbsData.map((p, index) => ({ ...p, id: index }));
 
-                // Gestion de l'écran de lancement
-                setTimeout(() => {
-                    dom.splashScreen.classList.add('hidden');
-                }, 1500);
+                setTimeout(() => dom.splashScreen.classList.add('hidden'), 1500);
 
                 const savedTheme = localStorage.getItem('inzan_theme') || 'light';
                 dom.html.classList.toggle('dark', savedTheme === 'dark');
@@ -957,41 +955,28 @@
                 const dailyProverb = state.proverbs[dayOfYear % state.proverbs.length];
                 dom.proverbOfTheDayCard.innerHTML = createProverbCardHTML(dailyProverb, true);
 
-                const allThemesRaw = state.proverbs.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean));
-                const uniqueNormalizedThemes = [...new Map(allThemesRaw.map(t => [normalizeText(t), t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()])).entries()];
-                uniqueNormalizedThemes.sort((a, b) => a[1].localeCompare(b[1]));
-
-                dom.themeListContainer.innerHTML = `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="tous">Tous</button>` + uniqueNormalizedThemes.map(([norm, disp]) => `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="${norm}">${disp}</button>`).join('');
-                dom.themeListContainer.querySelector(`[data-theme="${state.activeTheme}"]`)?.classList.add('active');
-
-                // Populate unique themes for the quiz
-                state.uniqueThemes = [...new Set(allThemesRaw.map(t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()))];
+                // Le traitement lourd des thèmes est RETIRÉ d'ici
 
                 setupEventListeners();
                 setActiveTab('accueil-tab'); 
             };
             
-            // Fetch proverbs from external JSON file and then initialize the app
             fetch('proverbs.json')
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.json();
                 })
                 .then(data => {
-                    main(data); // Call the main function with the loaded data
+                    main(data);
                 })
                 .catch(error => {
                     console.error("Could not load proverbs:", error);
-                    // Display an error message to the user
                     document.body.innerHTML = `<div class="text-center p-8 text-red-600">
                         <h1 class="text-2xl font-bold">Erreur de chargement</h1>
                         <p>Impossible de charger la banque de proverbes depuis le fichier proverbs.json.</p>
-                        <p>Veuillez vérifier que le fichier est bien présent à côté du fichier HTML.</p>
+                        <p>Veuillez vérifier que le fichier est bien présent à côté du fichier HTML et que son format JSON est correct.</p>
                     </div>`;
                 });
-
         });
     </script>
 </body>
