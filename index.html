@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
+<html lang="fr-FR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,23 +16,25 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22 fill=%22%234A7C59%22%3E%E2%9C%A7%3C/text%3E%3C/svg%3E">
     
     <style>
-        /* Amélioration de la palette de couleurs et du design général */
+        /* --- Palettes & Variables --- */
         :root {
-            --color-bg: #F9F7F3; /* Fond légèrement plus chaud */
+            --color-bg: #F9F7F3;
             --color-bg-card: #FFFFFF;
             --color-bg-alt: #F0EFEA;
             --color-text: #3D4A3A;
             --color-text-light: #6B7280;
             --color-heading: #2F4F4F;
-            --color-primary: #4A7C59; /* Vert forêt profond */
+            --color-primary: #4A7C59;
             --color-secondary: #3A644B;
-            --color-accent: #C79A2A; /* Or vieilli */
+            --color-accent: #C79A2A;
             --color-border: #E5E7EB;
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             --font-serif: 'Tinos', serif;
             --font-sans: 'Raleway', sans-serif;
+            --transition-fast: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-medium: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         html.dark {
@@ -47,119 +49,98 @@
             --color-accent: #FBBF24;
             --color-border: #374151;
         }
-
+        
+        /* --- Styles Généraux --- */
         body {
             background-color: var(--color-bg);
             font-family: var(--font-sans);
             color: var(--color-text);
-            /* Motif de fond plus subtil et élégant */
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-        
-        /* Amélioration de la lisibilité et des transitions */
-        .action-btn, .theme-pill-button, .card-theme-badge, .nav-btn, #back-to-top { 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .theme-pill-button.active { 
-            box-shadow: var(--shadow-md); 
-            transform: translateY(-2px); 
-            background-color: var(--color-primary);
-            color: white !important;
-        }
-        .card-theme-badge:hover { 
-            background-color: var(--color-accent); 
-            color: var(--color-secondary); 
-            transform: scale(1.05); 
-        }
-        .search-highlight { 
-            background-color: var(--color-accent); 
-            padding: 1px 4px; 
-            border-radius: 4px; 
-            color: var(--color-bg-card); 
-            font-weight: 700; 
-        }
 
-        /* Animation d'apparition plus douce */
+        /* --- Animations --- */
         @keyframes fadeIn { 
             from { opacity: 0; transform: translateY(10px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
         @keyframes zoomIn {
-            from { transform: scale(0.8); opacity: 0; }
+            from { transform: scale(0.9); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
-        .fade-in { 
-            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        .stagger-in {
-             animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
-        }
+        .fade-in { animation: fadeIn 0.6s var(--transition-fast) forwards; }
+        .stagger-in { animation: fadeIn 0.5s var(--transition-fast) both; }
+        .zoom-in { animation: zoomIn 0.5s var(--transition-fast) forwards; }
         
+        /* --- Composants UI --- */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
 
-        /* Effet de surbrillance amélioré */
-        .highlight { 
-            transition: all 0.4s ease; 
-            transform: scale(1.02); 
-            box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 50%, transparent), var(--shadow-lg); 
-            border-radius: 0.75rem; /* Correspond au radius de la carte */
+        .search-highlight { 
+            background-color: var(--color-accent); 
+            padding: 1px 4px; border-radius: 4px; 
+            color: var(--color-bg-card); font-weight: 700; 
         }
         
-        /* Toast notification avec une meilleure animation */
-        #toast { transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
-        #back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+        .action-btn, .theme-pill-button, .card-theme-badge, .nav-btn, #back-to-top { 
+            transition: var(--transition-fast);
+        }
+        
+        /* Barre de navigation */
+        .nav-btn.active.mobile { 
+            color: var(--color-primary); transform: translateY(-4px) scale(1.1); 
+            background-color: var(--color-bg); border-radius: 50%; 
+        }
+        .nav-btn.active.desktop { 
+            color: var(--color-primary); border-color: var(--color-primary); 
+            background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        }
 
-        /* Styles pour le loader */
+        /* Filtres de thèmes */
+        .theme-pill-button.active { 
+            box-shadow: var(--shadow-md); transform: translateY(-2px); 
+            background-color: var(--color-primary); color: white !important;
+        }
+        .card-theme-badge:hover { 
+            background-color: var(--color-accent); color: var(--color-secondary); 
+            transform: scale(1.05); 
+        }
+        
+        /* Loader & Squelettes */
         .loader { 
-            width: 20px; height: 20px; 
-            border: 3px solid #FFF; 
-            border-bottom-color: transparent; 
-            border-radius: 50%; 
-            display: inline-block; 
-            box-sizing: border-box; 
+            width: 20px; height: 20px; border: 3px solid #FFF; 
+            border-bottom-color: transparent; border-radius: 50%; 
+            display: inline-block; box-sizing: border-box; 
             animation: rotation 1s linear infinite; 
         }
         .loader-dark { border-color: #666; border-bottom-color: transparent; }
         html.dark .loader-dark { border-color: #9CA3AF; border-bottom-color: transparent; }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes rotation { to { transform: rotate(360deg); } }
 
-        /* Barre de défilement personnalisée */
-        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 10px; border: 2px solid transparent; background-clip: content-box;}
-        html.dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #4B5563; }
-        
-        /* Styles actifs pour la navigation, plus visibles */
-        .nav-btn.active.mobile { 
-            color: var(--color-primary); 
-            transform: translateY(-4px) scale(1.1); 
-            background-color: var(--color-bg); 
-            border-radius: 50%; 
+        .skeleton-card {
+            background-color: var(--color-bg-card);
+            border-radius: 0.75rem; padding: 1.5rem;
+            box-shadow: var(--shadow-lg); border-top: 8px solid var(--color-border);
         }
-        .nav-btn.active.desktop { 
-            color: var(--color-primary); 
-            border-color: var(--color-primary); 
-            background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        @keyframes pulse { 50% { opacity: 0.6; } }
+        .skeleton-line {
+            height: 1.25rem; border-radius: 0.25rem;
+            background-color: var(--color-bg-alt);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
-        
-        /* Styles pour la modale */
+
+        /* Modale */
         #modal-backdrop.visible { opacity: 1; pointer-events: auto; }
         #modal-content.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
-        #modal-body { -webkit-overflow-scrolling: touch; }
 
-        /* Amélioration de la typographie du contenu généré (prose) */
+        /* Prose (contenu généré) */
         .prose h3 { margin-top: 1.5em; margin-bottom: 0.6em; font-size: 1.2em; font-weight: bold; color: var(--color-primary); border-bottom: 1px solid var(--color-border); padding-bottom: 0.3em;}
         .prose p, .prose ul { margin-bottom: 1em; line-height: 1.6; }
         .prose ul { list-style-position: inside; padding-left: 1em; }
         .prose li { margin-bottom: 0.5em; }
 
-        /* Style pour le bouton favori */
-        .favorite-btn.favorited svg { fill: #EC4899; stroke: #EC4899; color: #EC4899; transform: scale(1.1); }
-
-        /* Styles améliorés pour le Quiz */
-        .quiz-option { border: 2px solid var(--color-border); padding: 0.75rem 1rem; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s ease; }
+        /* Quiz */
+        .quiz-option { border: 2px solid var(--color-border); padding: 0.75rem 1rem; border-radius: 0.5rem; cursor: pointer; transition: var(--transition-fast); }
         .quiz-option:hover { border-color: var(--color-primary); background-color: color-mix(in srgb, var(--color-primary) 10%, transparent); }
         .quiz-option.correct { border-color: #10B981; background-color: #D1FAE5; color: #064E3B; font-weight: bold; transform: scale(1.02); }
         html.dark .quiz-option.correct { background-color: #064E3B; color: #D1FAE5; }
@@ -167,38 +148,12 @@
         html.dark .quiz-option.incorrect { background-color: #991B1B; color: #FEE2E2; }
         .quiz-option[disabled] { cursor: not-allowed; opacity: 0.7; }
         
-        /* Style pour le bouton de suppression de la recherche */
-        .search-wrapper { position: relative; }
-        .clear-search-btn {
-            position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
-            color: var(--color-text-light); opacity: 0; pointer-events: none; transition: opacity 0.2s;
-        }
-        .search-wrapper input:not(:placeholder-shown) + .clear-search-btn {
-            opacity: 1; pointer-events: auto; cursor: pointer;
-        }
-
-        /* Amélioration de l'accessibilité au focus */
+        /* Accessibilité */
         :focus-visible {
             outline: 3px solid var(--color-accent);
             outline-offset: 2px;
             border-radius: 0.375rem;
         }
-        #modal-content :focus-visible {
-            border-radius: 0.125rem;
-        }
-
-        /* Styles pour l'écran de lancement */
-        #splash-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        #splash-logo {
-            animation: zoomIn 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        
-        /* Styles pour le bouton "Charger Plus" */
-        #load-more-btn.hidden { display: none; }
-        #load-more-btn.loading { opacity: 0.7; cursor: wait; }
     </style>
 </head>
 <body class="p-4 sm:p-6 md:p-8 pb-32 sm:pb-8">
@@ -216,7 +171,7 @@
         
         <header class="relative text-center mb-8 md:mb-12">
             <div class="absolute top-0 right-0 z-50">
-                <button id="theme-toggle" aria-label="Changer de thème" class="p-2 rounded-full bg-[var(--color-bg-card)] text-[var(--color-text)] shadow-md hover:scale-110 transition-transform">
+                <button id="theme-toggle" aria-label="Changer le thème (Clair/Sombre)" class="p-2 rounded-full bg-[var(--color-bg-card)] text-[var(--color-text)] shadow-md hover:scale-110 transition-transform">
                     <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                     <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                 </button>
@@ -232,42 +187,51 @@
 
         <nav id="desktop-nav" class="hidden sm:flex justify-center mb-8">
             <div class="flex items-center gap-2 p-2 bg-[var(--color-bg-card)]/80 backdrop-blur-md rounded-xl shadow-md border border-[var(--color-border)]">
-                <button data-tab="accueil-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
+                <a href="#accueil" data-tab="accueil-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                     <span class="font-semibold">Accueil</span>
-                </button>
-                <button data-tab="explorer-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
+                </a>
+                <a href="#explorer" data-tab="explorer-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     <span class="font-semibold">Explorer</span>
-                </button>
-                <button data-tab="favoris-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
+                </a>
+                <a href="#favoris" data-tab="favoris-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                     <span class="font-semibold">Favoris</span>
-                </button>
-                <button data-tab="ai-sage-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
+                </a>
+                <a href="#sage-ai" data-tab="ai-sage-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                     <span class="font-semibold">Sage AI</span>
-                </button>
-                <button data-tab="quiz-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
+                </a>
+                <a href="#quiz" data-tab="quiz-tab" class="nav-btn desktop flex items-center gap-2 px-4 py-2 text-[var(--color-text)] rounded-lg border-2 border-transparent">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
                     <span class="font-semibold">Quiz</span>
-                </button>
+                </a>
             </div>
         </nav>
 
         <main>
-            <section id="accueil-tab" class="tab-content" aria-labelledby="proverb-of-the-day-title">
+            <section id="accueil-tab" role="region" aria-labelledby="accueil-title" class="tab-content">
                 <div class="max-w-4xl mx-auto mb-10 text-center p-6 bg-[var(--color-bg-card)]/70 rounded-xl shadow-inner border border-[var(--color-border)]">
                     <p class="text-lg text-[var(--color-secondary)] italic font-light">
                         Comme un médicament, le proverbe doit être utilisé à bon escient. 
                         <span class="block mt-2 font-medium text-[var(--color-primary)]">Anzi am ddwa, ilaq ad t-yesseqdec umdan akken iwulem.</span>
                     </p>
                 </div>
-                <h2 id="proverb-of-the-day-title" class="text-3xl font-serif text-[var(--color-primary)] mb-5 text-center font-semibold">Proverbe du Jour 💡</h2>
-                <div id="proverb-of-the-day-card" class="max-w-3xl mx-auto fade-in">
-                    <div class="bg-[var(--color-bg-card)] p-6 rounded-xl shadow-2xl border-t-8 border-[var(--color-accent)] flex flex-col justify-center items-center h-40">
-                         <span class="loader loader-dark"></span> 
-                         <p class="mt-4 text-sm text-[var(--color-text-light)]">Chargement de la sagesse...</p>
+                <h2 id="accueil-title" class="text-3xl font-serif text-[var(--color-primary)] mb-5 text-center font-semibold">Proverbe du Jour 💡</h2>
+                <div id="proverb-of-the-day-card" class="max-w-3xl mx-auto zoom-in">
+                    <div class="skeleton-card">
+                        <div class="space-y-3">
+                            <div class="skeleton-line w-3/4"></div>
+                            <div class="skeleton-line w-5/6"></div>
+                        </div>
+                        <div class="mt-6 flex justify-between items-center">
+                            <div class="skeleton-line w-1/4 h-6"></div>
+                            <div class="flex gap-2">
+                                <div class="w-8 h-8 rounded-full skeleton-line"></div>
+                                <div class="w-8 h-8 rounded-full skeleton-line"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -282,7 +246,7 @@
                                 Une partie de cette banque de proverbes est extraite des 4 tomes de l'œuvre magistrale de Monsieur Aomar SIDER : <strong class="text-[var(--color-primary)] font-semibold">"INZAN amek i d-llan"</strong> ("Origines des proverbes et expressions kabyles").
                             </p>
                             <p class="text-sm text-[var(--color-text-light)]">
-                        </strong>Son livre, avec les explications étymologiques et l'origine détaillée de chaque proverbe, est disponible à la vente en 4 tomes dans les librairies.</strong>
+                                Son livre, avec les explications étymologiques et l'origine détaillée de chaque proverbe, est disponible à la vente dans les librairies.
                             </p>
                         </div>
                     </div>
@@ -290,21 +254,22 @@
 
                 <footer class="text-center mt-16 py-6 border-t-2 border-[var(--color-border)]">
                     <p class="text-[var(--color-text-light)] font-medium">Une collection de la sagesse populaire kabyle.</p>
-                    <p class="text-sm text-[var(--color-text-light)] mt-1">Application développée par TAMAZIRT Boussad. <button id="about-btn" class="text-[var(--color-primary)] underline">En savoir plus</button>.</p>
+                    <p class="text-sm text-[var(--color-text-light)] mt-1">Application développée par TAMAZIRT Boussad. <button id="about-btn" class="text-[var(--color-primary)] underline hover:text-[var(--color-accent)]">En savoir plus</button>.</p>
                 </footer>
             </section>
 
-            <section id="explorer-tab" class="tab-content" aria-labelledby="explorer-title">
+            <section id="explorer-tab" role="region" aria-labelledby="explorer-title" class="tab-content">
+                 <h2 id="explorer-title" class="sr-only">Explorer les Proverbes</h2>
                  <div class="sticky top-4 z-20 bg-[var(--color-bg-card)]/80 backdrop-blur-md rounded-xl shadow-lg border border-[var(--color-border)] mb-6">
                      <div class="p-4 space-y-4">
-                        <div class="flex flex-col sm:flex-row gap-4 items-stretch">
-                            <div class="search-wrapper flex-grow">
-                                <input type="text" id="search-input" placeholder="Rechercher par mot-clé ou thème..." aria-label="Champ de recherche de proverbe" class="w-full p-3 pr-10 border-2 border-[var(--color-border)] rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/30 transition duration-200 text-lg shadow-inner bg-[var(--color-bg-card)]">
-                                <button class="clear-search-btn" aria-label="Vider la recherche">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="relative flex-grow">
+                                <input type="search" id="search-input" placeholder="Rechercher par mot-clé..." aria-label="Champ de recherche de proverbe" class="w-full p-3 pr-10 border-2 border-[var(--color-border)] rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/30 transition duration-200 text-lg shadow-inner bg-[var(--color-bg-card)]">
+                                <button class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-light)]" id="clear-search-btn" aria-label="Vider la recherche">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                             </div>
-                            <button id="random-btn" aria-label="Afficher un proverbe aléatoire" class="w-full sm:w-auto px-5 py-3 bg-[var(--color-accent)] text-white font-semibold rounded-lg hover:bg-[var(--color-primary)] transition-all duration-300 flex items-center justify-center gap-2 shadow-md transform hover:scale-[1.02]">
+                            <button id="random-btn" aria-label="Afficher une sélection de proverbes aléatoires" class="w-full sm:w-auto px-5 py-3 bg-[var(--color-accent)] text-white font-semibold rounded-lg hover:bg-[var(--color-primary)] transition-all duration-300 flex items-center justify-center gap-2 shadow-md transform hover:scale-[1.02]">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg>
                                 <span>Aléatoire</span>
                             </button>
@@ -312,10 +277,7 @@
                         <nav id="theme-filter-nav" aria-label="Filtres de thèmes Kabyles">
                             <div class="flex items-center gap-3">
                                 <h3 class="text-sm font-bold text-[var(--color-heading)] flex-shrink-0">Thèmes:</h3>
-                                <div class="flex-grow overflow-x-auto custom-scrollbar">
-                                    <div id="theme-list-container" class="flex gap-2 py-1">
-                                        </div>
-                                </div>
+                                <div id="theme-list-container" class="flex-grow overflow-x-auto flex gap-2 py-1"></div>
                             </div>
                         </nav>
                     </div>
@@ -326,14 +288,14 @@
                 <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 min-h-[400px]">
                     <div id="initial-load-message" class="md:col-span-2 xl:col-span-3 text-center p-8 bg-[var(--color-bg-card)] rounded-lg shadow-inner flex flex-col items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-[var(--color-text-light)] opacity-70"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
-                        <p class="mt-4 text-lg text-[var(--color-text-light)]">Commencez votre recherche pour trouver un proverbe.</p>
+                        <p class="mt-4 text-lg text-[var(--color-text-light)]">Commencez une recherche ou explorez les thèmes.</p>
                         <p class="text-md text-[var(--color-text-light)]">Ou cliquez sur "Aléatoire" pour une découverte.</p>
                     </div>
                 </div>
                 
                 <div class="text-center mt-8">
                     <button id="load-more-btn" class="hidden w-full max-w-sm px-8 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-lg shadow-md hover:bg-[var(--color-secondary)] transition-colors duration-300">
-                        Charger 50 proverbes supplémentaires
+                        Charger plus
                     </button>
                 </div>
 
@@ -342,17 +304,17 @@
                 </p>
             </section>
             
-            <section id="favoris-tab" class="tab-content" aria-labelledby="favoris-title">
+            <section id="favoris-tab" role="region" aria-labelledby="favoris-title" class="tab-content">
                 <h2 id="favoris-title" class="text-3xl font-serif text-[var(--color-primary)] mb-5 text-center font-semibold">Mes Favoris ❤️</h2>
                 <div id="favorites-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 min-h-[400px]"></div>
                 <div id="no-favorites" class="text-center text-xl text-[var(--color-text-light)] mt-12 hidden font-serif p-4">
                     <p>Vous n'avez pas encore de proverbes favoris.</p>
-                    <button id="go-to-explorer-btn" class="mt-4 px-5 py-2 bg-[var(--color-primary)] text-white font-semibold rounded-lg shadow-md hover:scale-[1.02] transition-transform">Explorer les proverbes</button>
+                    <a href="#explorer" id="go-to-explorer-btn" class="mt-4 inline-block px-5 py-2 bg-[var(--color-primary)] text-white font-semibold rounded-lg shadow-md hover:scale-[1.02] transition-transform">Explorer les proverbes</a>
                 </div>
             </section>
             
-            <section id="ai-sage-tab" class="tab-content" aria-labelledby="ai-sage-title">
-                 <h2 id="ai-sage-title" class="text-3xl font-serif text-[var(--color-primary)] mb-5 text-center font-semibold">Le Sage Artificiel 🤖</h2>
+            <section id="ai-sage-tab" role="region" aria-labelledby="ai-sage-title" class="tab-content">
+                <h2 id="ai-sage-title" class="text-3xl font-serif text-[var(--color-primary)] mb-5 text-center font-semibold">Le Sage Artificiel 🤖</h2>
                 <div class="fade-in max-w-3xl mx-auto bg-[var(--color-bg-card)]/95 p-6 rounded-xl shadow-lg border border-[var(--color-border)]">
                     <p class="text-center text-[var(--color-text-light)] mb-4">Décrivez une situation, et laissez notre sage vous proposer les proverbes les plus pertinents.</p>
                     <textarea id="ai-context-input" class="w-full p-3 border-2 border-[var(--color-border)] rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/30 transition duration-200 text-lg shadow-inner mb-4 bg-[var(--color-bg)]" rows="3" placeholder="Exemple : Mon ami parle beaucoup mais n'agit jamais..."></textarea>
@@ -364,47 +326,46 @@
                 </div>
             </section>
             
-            <section id="quiz-tab" class="tab-content" aria-labelledby="quiz-title">
+            <section id="quiz-tab" role="region" aria-labelledby="quiz-title" class="tab-content">
                 <h2 id="quiz-title" class="text-3xl font-serif text-[var(--color-primary)] mb-5 text-center font-semibold">Quiz de Sagesse 🧠</h2>
                 <div id="quiz-container" class="fade-in max-w-3xl mx-auto bg-[var(--color-bg-card)]/95 p-6 rounded-xl shadow-lg border border-[var(--color-border)]">
                     <div class="text-center p-8">
                         <span class="loader loader-dark"></span> 
-                        <p class="mt-4 text-sm text-[var(--color-text-light)]">Chargement des données du Quiz...</p>
+                        <p class="mt-4 text-sm text-[var(--color-text-light)]">Chargement du quiz...</p>
                     </div>
                 </div>
             </section>
-
         </main>
     </div>
     
     <nav id="mobile-nav" class="sm:hidden fixed bottom-4 left-4 right-4 bg-[var(--color-bg-card)]/80 backdrop-blur-lg border border-[var(--color-border)] flex justify-around shadow-2xl z-50 rounded-full p-1">
-        <button data-tab="accueil-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
+        <a href="#accueil" data-tab="accueil-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span class="text-xs font-semibold">Accueil</span>
-        </button>
-        <button data-tab="explorer-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
+        </a>
+        <a href="#explorer" data-tab="explorer-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <span class="text-xs font-semibold">Explorer</span>
-        </button>
-        <button data-tab="favoris-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
+        </a>
+        <a href="#favoris" data-tab="favoris-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
             <span class="text-xs font-semibold">Favoris</span>
-        </button>
-        <button data-tab="ai-sage-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
+        </a>
+        <a href="#sage-ai" data-tab="ai-sage-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
             <span class="text-xs font-semibold">Sage AI</span>
-        </button>
-        <button data-tab="quiz-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
+        </a>
+        <a href="#quiz" data-tab="quiz-tab" class="nav-btn mobile flex-1 flex flex-col items-center p-2 text-[var(--color-text)]">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
             <span class="text-xs font-semibold">Quiz</span>
-        </button>
+        </a>
     </nav>
     
-    <div id="toast" role="status" aria-live="polite" class="fixed bottom-[-100px] left-1/2 -translate-x-1/2 bg-green-700 text-white py-2 px-5 rounded-full shadow-xl opacity-0 z-[1000]">
+    <div id="toast" role="status" aria-live="polite" class="fixed bottom-[-100px] left-1/2 -translate-x-1/2 bg-green-700 text-white py-2 px-5 rounded-full shadow-xl opacity-0 z-[1000] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)]">
         <p>Message</p>
     </div>
 
-    <button id="back-to-top" title="Retour en haut" aria-label="Retourner en haut de la page" class="fixed bottom-[100px] sm:bottom-10 right-5 p-3 bg-[var(--color-secondary)] text-white rounded-full shadow-xl hover:bg-[var(--color-primary)] focus:outline-none transition-all opacity-0 visibility-hidden transform-gpu translate-y-5 z-50">
+    <button id="back-to-top" title="Retour en haut" aria-label="Retourner en haut de la page" class="fixed bottom-[100px] sm:bottom-10 right-5 p-3 bg-[var(--color-secondary)] text-white rounded-full shadow-xl hover:bg-[var(--color-primary)] focus:outline-none transition-all opacity-0 invisible transform-gpu translate-y-5 z-50">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
     </button>
     
@@ -414,20 +375,25 @@
              <h2 id="modal-title" class="text-2xl font-serif text-[var(--color-heading)]"></h2>
         </header>
         <div id="modal-body" class="prose max-w-none text-[var(--color-text)] p-6 overflow-y-auto"></div>
-        <button id="modal-close-btn" aria-label="Fermer la modale" class="absolute top-4 right-4 text-gray-400 hover:text-[var(--color-heading)] transition-colors z-20 p-2">
+        <button id="modal-close-btn" aria-label="Fermer la fenêtre" class="absolute top-4 right-4 text-gray-400 hover:text-[var(--color-heading)] transition-colors z-20 p-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- CONSTANTES & ÉLÉMENTS DU DOM ---
+            // --- CONSTANTS & CONFIGURATION ---
             const PROVERBS_PER_PAGE = 50;
+            const DEBOUNCE_DELAY = 300;
+            const GEMINI_API_KEY = "AIzaSyD3cGyEYYhNbFN6WlMKb5wjpdDqfR8RaN4"; // DO NOT MODIFY
+
+            // --- DOM ELEMENT CACHE ---
             const dom = {
                 html: document.documentElement,
                 splashScreen: document.getElementById('splash-screen'),
+                splashLogo: document.getElementById('splash-logo'),
                 searchInput: document.getElementById('search-input'),
-                clearSearchBtn: document.querySelector('.clear-search-btn'),
+                clearSearchBtn: document.getElementById('clear-search-btn'),
                 resultsContainer: document.getElementById('results-container'),
                 resultsFeedback: document.getElementById('results-feedback'),
                 initialLoadMessage: document.getElementById('initial-load-message'),
@@ -435,7 +401,6 @@
                 favoritesContainer: document.getElementById('favorites-container'),
                 noResults: document.getElementById('no-results'),
                 noFavorites: document.getElementById('no-favorites'),
-                goToExplorerBtn: document.getElementById('go-to-explorer-btn'),
                 toast: document.getElementById('toast'),
                 proverbOfTheDayCard: document.getElementById('proverb-of-the-day-card'),
                 randomBtn: document.getElementById('random-btn'),
@@ -461,44 +426,36 @@
                 }
             };
 
-            // --- ÉTAT GLOBAL DE L'APPLICATION ---
+            // --- APPLICATION STATE ---
             const state = {
                 activeTheme: 'tous',
                 searchTimeout: null,
                 proverbs: [],
                 favorites: new Set(JSON.parse(localStorage.getItem('inzan_favorites')) || []),
                 trapFocusHandler: null,
-                isCoreDataLoaded: false, // Vrai dès que le fetch est terminé
+                isDataLoaded: false,
                 currentPage: 0,
                 displayedProverbs: []
             };
             
-            // --- FONCTIONS UTILITAIRES ---
-            const normalizeText = (text) => {
-                if (!text) return '';
-                return text
-                    .toLowerCase()
-                    .replace(/ǧ/g, 'g')
-                    .replace(/č/g, 'c')
-                    .replace(/ṣ/g, 's')
-                    .replace(/ṭ/g, 't')
-                    .replace(/ẓ/g, 'z')
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .trim();
-            };
+            // --- UTILITY FUNCTIONS ---
+            const normalizeText = (text = '') => text
+                .toLowerCase()
+                .replace(/ǧ/g, 'g').replace(/č/g, 'c').replace(/ṣ/g, 's')
+                .replace(/ṭ/g, 't').replace(/ẓ/g, 'z')
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
             const debounce = (func, delay) => (...args) => {
                 clearTimeout(state.searchTimeout);
                 state.searchTimeout = setTimeout(() => func(...args), delay);
             };
             
-            const renderMarkdown = (text) => {
-                let html = text.trim();
-                html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-                html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-                html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
-                html = html.replace(/^\* (.*$)/gim, '<li>$1</li>').replace(/(\<\/li\>)?\n<li>/gim, '</li><li>').replace(/^(<li>.*<\/li>)$/gim, '<ul>$1</ul>');
+            const renderMarkdown = (text = '') => {
+                let html = text.trim()
+                    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+                    .replace(/^\* (.*$)/gim, '<li>$1</li>').replace(/(\<\/li\>)?\n<li>/gim, '</li><li>').replace(/^(<li>.*<\/li>)$/gim, '<ul>$1</ul>');
                 return html.split('\n\n').map(p => {
                     if (p.startsWith('<ul>') || p.startsWith('<h3>')) return p;
                     return `<p>${p.replace(/\n/g, '<br>')}</p>`;
@@ -507,26 +464,22 @@
 
             const showToast = (message, isError = false) => {
                 dom.toast.querySelector('p').textContent = message;
-                dom.toast.className = `fixed bottom-[-100px] left-1/2 -translate-x-1/2 text-white py-2 px-5 rounded-full shadow-xl opacity-0 z-[1000] ${isError ? 'bg-red-600' : 'bg-green-700'}`;
+                dom.toast.className = `fixed bottom-[-100px] left-1/2 -translate-x-1/2 text-white py-2 px-5 rounded-full shadow-xl opacity-0 z-[1000] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)] ${isError ? 'bg-red-600' : 'bg-green-700'}`;
                 requestAnimationFrame(() => {
                     dom.toast.classList.add('bottom-28', 'sm:bottom-10', 'opacity-100');
+                    setTimeout(() => dom.toast.classList.remove('bottom-28', 'sm:bottom-10', 'opacity-100'), 3000);
                 });
-                setTimeout(() => dom.toast.classList.remove('bottom-28', 'sm:bottom-10', 'opacity-100'), 3000);
             };
 
-            const highlightText = (text, query) => {
+            const highlightText = (text = '', query = '') => {
                 if (!query) return text;
-                const normalizedQuery = normalizeText(query);
-                if (!normalizedQuery) return text;
-                // Split query into words and highlight each one
-                const keywords = normalizedQuery.split(' ').filter(k => k.length > 0);
+                const keywords = normalizeText(query).split(' ').filter(k => k.length > 0);
                 if (keywords.length === 0) return text;
-
                 const regex = new RegExp(`(${keywords.join('|')})`, 'gi');
                 return text.replace(regex, `<span class="search-highlight">$1</span>`);
             };
             
-            // --- RENDU UI DYNAMIQUE ---
+            // --- RENDERING FUNCTIONS ---
             const createProverbCardHTML = (proverb, isDaily = false, query = '') => {
                 if (!proverb) return '';
                 const themes = proverb.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean);
@@ -547,8 +500,8 @@
                             <div class="mt-4 pt-3 border-t border-[var(--color-border)] flex justify-between items-center gap-2">
                                <button class="explain-btn text-xs font-semibold text-[var(--color-text-light)] hover:text-[var(--color-primary)] transition-colors">Expliquer ✨</button>
                                <div class="flex items-center gap-1 text-[var(--color-text-light)]">
-                                    <button class="action-btn favorite-btn ${isFavorited ? 'favorited' : ''} p-1 hover:text-pink-500" aria-label="Ajouter aux favoris">
-                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                                    <button class="action-btn favorite-btn ${isFavorited ? 'favorited' : ''} p-1 hover:text-pink-500" aria-label="${isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
+                                        <svg class="h-6 w-6" fill="${isFavorited ? '#EC4899' : 'none'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                                     </button>
                                     <button class="action-btn copy-btn p-1 hover:text-[var(--color-primary)]" aria-label="Copier le proverbe">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -562,20 +515,17 @@
             };
             
             const renderChunk = (container, proverbs, query, append = true) => {
-                const chunkHtml = proverbs.map((p, i) => {
+                const fragment = document.createDocumentFragment();
+                proverbs.forEach((p, i) => {
                     const cardHTML = createProverbCardHTML(p, false, query);
                     const wrapper = document.createElement('div');
                     wrapper.innerHTML = cardHTML;
                     const cardElement = wrapper.firstElementChild;
                     cardElement.style.animationDelay = `${i * 50}ms`;
-                    return cardElement.outerHTML;
-                }).join('');
-                
-                if (append) {
-                    container.insertAdjacentHTML('beforeend', chunkHtml);
-                } else {
-                    container.innerHTML = chunkHtml;
-                }
+                    fragment.appendChild(cardElement);
+                });
+                if (!append) container.innerHTML = '';
+                container.appendChild(fragment);
             };
 
             const updateAvailableThemes = () => {
@@ -590,54 +540,40 @@
                 dom.themeListContainer.innerHTML = `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="tous">Tous</button>` + uniqueNormalizedThemes.map(([norm, disp]) => `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="${norm}">${disp}</button>`).join('');
                 
                 const activeThemeButton = dom.themeListContainer.querySelector(`[data-theme="${state.activeTheme}"]`);
-                if (activeThemeButton) {
-                    activeThemeButton.classList.add('active');
-                } else {
-                    dom.themeListContainer.querySelector('[data-theme="tous"]').classList.add('active');
-                }
+                if (activeThemeButton) activeThemeButton.classList.add('active');
             };
 
-            // --- LOGIQUE DE L'ONGLET EXPLORER (FILTRES/PAGINATION) ---
+            // --- EXPLORER LOGIC ---
             const updateLoadMoreButton = (totalFilteredCount) => {
-                if (!state.isCoreDataLoaded) return;
-                const isSearchingOrFiltering = dom.searchInput.value || state.activeTheme !== 'tous';
-                
-                if (!isSearchingOrFiltering || state.displayedProverbs.length >= totalFilteredCount) {
-                    dom.loadMoreBtn.classList.add('hidden');
-                } else {
+                if (!state.isDataLoaded) return;
+                const remaining = totalFilteredCount - state.displayedProverbs.length;
+                if (remaining > 0) {
                     dom.loadMoreBtn.classList.remove('hidden');
-                    const remaining = totalFilteredCount - state.displayedProverbs.length;
-                    dom.loadMoreBtn.textContent = `Charger ${Math.min(PROVERBS_PER_PAGE, remaining)} proverbes supplémentaires`;
+                    dom.loadMoreBtn.textContent = `Charger ${Math.min(PROVERBS_PER_PAGE, remaining)} proverbes de plus`;
+                } else {
+                    dom.loadMoreBtn.classList.add('hidden');
                 }
             };
 
             const filterProverbs = () => {
-                if (!state.isCoreDataLoaded) return [];
-
-                const query = dom.searchInput.value;
-                const normalizedQuery = normalizeText(query);
-                
+                if (!state.isDataLoaded) return [];
+                const normalizedQuery = normalizeText(dom.searchInput.value);
                 if (!normalizedQuery && state.activeTheme === 'tous') return [];
-                
                 const keywords = normalizedQuery.split(' ').filter(k => k.length > 0);
 
                 return state.proverbs.filter(p => {
                     const themeMatch = state.activeTheme === 'tous' || p.theme_norm.includes(state.activeTheme);
-                    
-                    const queryMatch = keywords.length === 0 ? true : (() => {
-                        const searchableText = `${p.kabyle_norm} ${p.francais_norm} ${p.theme_norm}`;
-                        return keywords.every(keyword => searchableText.includes(keyword));
-                    })();
-                                       
-                    return themeMatch && queryMatch;
+                    if (!themeMatch) return false;
+                    if (keywords.length === 0) return true;
+                    const searchableText = `${p.kabyle_norm} ${p.francais_norm} ${p.theme_norm}`;
+                    return keywords.every(keyword => searchableText.includes(keyword));
                 });
             };
 
             const loadNextChunk = (reset = false) => {
-                if (!state.isCoreDataLoaded) return;
+                if (!state.isDataLoaded) return;
                 
                 const filteredProverbs = filterProverbs();
-                
                 if (reset) {
                     state.currentPage = 0;
                     state.displayedProverbs = [];
@@ -649,26 +585,21 @@
                 const endIndex = startIndex + PROVERBS_PER_PAGE;
                 const chunkToLoad = filteredProverbs.slice(startIndex, endIndex);
 
-                if (chunkToLoad.length === 0 && reset) {
-                    dom.noResults.classList.remove('hidden');
-                    dom.resultsFeedback.textContent = '';
-                } else {
-                    dom.noResults.classList.add('hidden');
-                    dom.resultsFeedback.textContent = `Affichage de ${Math.min(state.displayedProverbs.length + chunkToLoad.length, filteredProverbs.length)} sur ${filteredProverbs.length} proverbes`;
-                }
+                dom.noResults.classList.toggle('hidden', filteredProverbs.length > 0 || chunkToLoad.length > 0);
+                dom.resultsFeedback.textContent = filteredProverbs.length > 0 ? `Affichage de ${Math.min(state.displayedProverbs.length + chunkToLoad.length, filteredProverbs.length)} sur ${filteredProverbs.length} proverbes` : '';
 
-                renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, true); // Always append after first load
+                renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, true);
                 
                 state.displayedProverbs.push(...chunkToLoad);
                 state.currentPage++;
                 updateLoadMoreButton(filteredProverbs.length);
-                updateAvailableThemes();
+                if(reset) updateAvailableThemes();
             };
 
-            // --- FONCTIONS D'AFFICHAGE ET DE NAVIGATION ---
+            // --- NAVIGATION & UI HANDLERS ---
             const renderFavorites = () => {
-                if (!state.isCoreDataLoaded) {
-                    dom.favoritesContainer.innerHTML = `<div class="md:col-span-2 xl:col-span-3 text-center p-8 text-[var(--color-text-light)]"><span class="loader loader-dark"></span> <p class="mt-2">Chargement des données en cours...</p></div>`;
+                if (!state.isDataLoaded) {
+                    dom.favoritesContainer.innerHTML = `<div class="md:col-span-2 xl:col-span-3 text-center p-8 text-[var(--color-text-light)]"><span class="loader loader-dark"></span> <p class="mt-2">Chargement...</p></div>`;
                     return;
                 }
                 const favoriteProverbs = state.proverbs.filter(p => state.favorites.has(p.id));
@@ -676,54 +607,50 @@
                 renderChunk(dom.favoritesContainer, favoriteProverbs, '', false);
             };
             
-            const resetThemeFilter = (update = true) => {
-                state.activeTheme = 'tous';
-                sessionStorage.setItem('inzan_theme_filter', 'tous');
-                dom.themeListContainer.querySelector('.active')?.classList.remove('active');
-                const tousButton = dom.themeListContainer.querySelector('[data-theme="tous"]');
-                if (tousButton) {
-                    tousButton.classList.add('active');
-                    tousButton.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                }
-                if(update) loadNextChunk(true);
-            };
-
             const setActiveTab = (tabId) => {
-                if (['quiz-tab', 'ai-sage-tab'].includes(tabId) && !state.isCoreDataLoaded) {
-                    showToast("Les données de base ne sont pas encore chargées.", true);
+                if (['quiz', 'sage-ai'].includes(tabId) && !state.isDataLoaded) {
+                    showToast("Les données ne sont pas encore chargées.", true);
                     return;
                 }
-
-                dom.tabContents.forEach(content => content.classList.toggle('active', content.id === tabId));
-                dom.navButtons.forEach(button => button.classList.toggle('active', button.dataset.tab === tabId));
+                const targetTabContent = document.getElementById(`${tabId}-tab`);
+                if (!targetTabContent) return;
                 
-                if (tabId === 'favoris-tab') renderFavorites();
-                if (tabId === 'quiz-tab' && state.isCoreDataLoaded && !dom.quizContainer.querySelector('#next-quiz-btn')) startQuiz();
+                dom.tabContents.forEach(content => content.classList.remove('active'));
+                targetTabContent.classList.add('active');
+                
+                dom.navButtons.forEach(button => button.classList.toggle('active', button.dataset.tab === `${tabId}-tab`));
+                
+                if (tabId === 'favoris') renderFavorites();
+                if (tabId === 'quiz' && !dom.quizContainer.querySelector('#next-quiz-btn')) startQuiz();
+                if (tabId === 'explorer') dom.searchInput.focus({ preventScroll: true });
 
                 if (document.body.clientWidth < 640) window.scrollTo({ top: 0, behavior: 'smooth' });
             };
+            
+            const handleHashChange = () => {
+                const hash = window.location.hash.substring(1) || 'accueil';
+                setActiveTab(hash);
+            };
 
             const toggleFavorite = (id) => {
-                const isFavorited = state.favorites.has(id);
-                if (isFavorited) {
+                const button = document.querySelector(`#proverb-${id} .favorite-btn`);
+                const icon = button?.querySelector('svg');
+                if (state.favorites.has(id)) {
                     state.favorites.delete(id);
                     showToast("💔 Retiré des favoris", true);
+                    button?.setAttribute('aria-label', 'Ajouter aux favoris');
+                    icon?.setAttribute('fill', 'none');
                 } else {
                     state.favorites.add(id);
                     showToast("❤️ Ajouté aux favoris !");
+                    button?.setAttribute('aria-label', 'Retirer des favoris');
+                    icon?.setAttribute('fill', '#EC4899');
                 }
                 localStorage.setItem('inzan_favorites', JSON.stringify([...state.favorites]));
-                
-                document.querySelectorAll(`#proverb-${id} .favorite-btn`).forEach(btn => {
-                    btn.classList.toggle('favorited', !isFavorited);
-                });
-
-                if (document.getElementById('favoris-tab').classList.contains('active')) {
-                    renderFavorites();
-                }
+                if (window.location.hash === '#favoris') renderFavorites();
             };
             
-            // --- MODALE ET LOGIQUE API ---
+            // --- MODAL & API LOGIC ---
             const openModal = (title, bodyContent) => {
                 dom.modal.title.textContent = title;
                 dom.modal.body.innerHTML = bodyContent;
@@ -731,18 +658,16 @@
                 dom.modal.content.classList.add('visible');
                 document.body.style.overflow = 'hidden';
 
-                const focusableElements = dom.modal.content.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                const firstElement = focusableElements[0];
-                const lastElement = focusableElements[focusableElements.length - 1];
-                
-                firstElement?.focus();
+                const focusable = dom.modal.content.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                first?.focus();
 
                 state.trapFocusHandler = (e) => {
+                    if (e.key === 'Escape') closeModal();
                     if (e.key === 'Tab') {
-                        if (e.shiftKey) { if (document.activeElement === firstElement) { lastElement.focus(); e.preventDefault(); } } 
-                        else { if (document.activeElement === lastElement) { firstElement.focus(); e.preventDefault(); } }
-                    } else if (e.key === 'Escape') {
-                        closeModal();
+                        if (e.shiftKey) { if (document.activeElement === first) { last.focus(); e.preventDefault(); } } 
+                        else { if (document.activeElement === last) { first.focus(); e.preventDefault(); } }
                     }
                 };
                 document.addEventListener('keydown', state.trapFocusHandler);
@@ -752,30 +677,23 @@
                 dom.modal.backdrop.classList.remove('visible');
                 dom.modal.content.classList.remove('visible');
                 document.body.style.overflow = '';
-                if (state.trapFocusHandler) {
-                    document.removeEventListener('keydown', state.trapFocusHandler);
-                    state.trapFocusHandler = null;
-                }
+                document.removeEventListener('keydown', state.trapFocusHandler);
+                state.trapFocusHandler = null;
             };
             
+            /* --- GEMINI API: DO NOT MODIFY THIS SECTION --- */
             const callGeminiAPI = async (payload, expectJson = false) => {
-                const GEMINI_API_KEY = "AIzaSyD3cGyEYYhNbFN6WlMKb5wjpdDqfR8RaN4";
-                if (!GEMINI_API_KEY) throw new Error("La clé API n'est pas configurée dans le code source.");
-
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
-                
+                if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("YOUR_API_KEY")) throw new Error("La clé API n'est pas configurée.");
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
                 if (expectJson) payload.generationConfig = { responseMimeType: "application/json" };
-
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData?.error?.message || `Erreur HTTP ${response.status}`);
                 }
-                
                 const result = await response.json();
                 const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!textResponse) throw new Error("Réponse de l'API malformée ou vide.");
-                
+                if (!textResponse) throw new Error("Réponse de l'API malformée.");
                 return expectJson ? JSON.parse(textResponse) : textResponse;
             };
 
@@ -789,7 +707,7 @@
                     });
                     dom.modal.body.innerHTML = renderMarkdown(explanation);
                 } catch (error) {
-                    dom.modal.body.innerHTML = `<p class="text-red-500">Désolé, une erreur est survenue lors de la communication avec le Sage Artificiel. <br><strong>Détail :</strong> ${error.message}</p>`;
+                    dom.modal.body.innerHTML = `<p class="text-red-500">Désolé, une erreur est survenue. <br><strong>Détail :</strong> ${error.message}</p>`;
                 }
             };
             
@@ -797,35 +715,24 @@
                 dom.ai.suggestBtn.disabled = true;
                 dom.ai.suggestBtn.innerHTML = `<span class="loader"></span> <span>Analyse...</span>`;
                 dom.ai.resultFeedback.innerHTML = '';
-                
                 const rawProverbs = state.proverbs.map(({ kabyle, francais, theme, explication }, id) => ({ id, kabyle, francais, theme, explication }));
-                
-                const systemPrompt = `Vous êtes un sage kabyle expert en proverbes. Analysez la situation de l'utilisateur et choisissez jusqu'à 3 proverbes les plus pertinents à partir de la liste fournie. Vous devez OBLIGATOIREMENT répondre avec un objet JSON valide et rien d'autre.`;
-                const userPrompt = `Situation de l'utilisateur: "${context}"\n\nListe des proverbes disponibles (limité pour l'exemple):\n${JSON.stringify(rawProverbs.slice(0, 500))}\n\nChoisissez les proverbes les plus appropriés et répondez UNIQUEMENT avec un objet JSON au format suivant:\n{ "reasoning": "Votre analyse générale de la situation en une phrase.", "proverbs": [ { "id": <id_du_proverbe_1>, "justification": "Pourquoi ce proverbe est pertinent." } ] }`;
-                
+                const systemPrompt = `Vous êtes un sage kabyle. Analysez la situation et choisissez jusqu'à 3 proverbes pertinents dans la liste. Répondez OBLIGATOIREMENT avec un objet JSON valide et rien d'autre.`;
+                const userPrompt = `Situation: "${context}"\n\nListe de proverbes:\n${JSON.stringify(rawProverbs.slice(0, 500))}\n\nRépondez UNIQUEMENT avec un JSON au format: { "reasoning": "Votre analyse.", "proverbs": [ { "id": <id>, "justification": "Pourquoi ce proverbe est pertinent." } ] }`;
                 try {
-                    const suggestion = await callGeminiAPI({
-                        contents: [{ parts: [{ text: userPrompt }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] }
-                    }, true);
-
-                    if (!suggestion || !suggestion.proverbs || suggestion.proverbs.length === 0) {
-                        dom.ai.resultFeedback.innerHTML = `<p class="text-center text-[var(--color-text-light)]">Le sage n'a pas trouvé de proverbe parfaitement adapté. Essayez de reformuler.</p>`;
+                    const suggestion = await callGeminiAPI({ contents: [{ parts: [{ text: userPrompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }, true);
+                    if (!suggestion?.proverbs?.length) {
+                        dom.ai.resultFeedback.innerHTML = `<p class="text-center text-[var(--color-text-light)]">Le sage n'a pas trouvé de proverbe adapté. Essayez de reformuler.</p>`;
                         return;
                     }
-
-                    let htmlResult = `<p class="text-center italic text-[var(--color-text-light)] mb-4">"${suggestion.reasoning}"</p>`;
+                    let html = `<p class="text-center italic text-[var(--color-text-light)] mb-4">"${suggestion.reasoning}"</p>`;
                     suggestion.proverbs.forEach(p => {
-                        const fullProverb = state.proverbs.find(fp => fp.id === p.id);
-                        if (fullProverb) {
-                             htmlResult += `<div class="p-3 mb-3 bg-[var(--color-bg)] rounded-lg border-l-4 border-dashed border-[var(--color-secondary)]">
-                                            <p class="font-semibold text-sm text-[var(--color-heading)]">Justification du sage :</p>
-                                            <p class="italic text-sm">"${p.justification}"</p>
-                                          </div>`;
-                            htmlResult += createProverbCardHTML(fullProverb);
+                        const full = state.proverbs.find(fp => fp.id === p.id);
+                        if (full) {
+                             html += `<div class="p-3 mb-3 bg-[var(--color-bg)] rounded-lg border-l-4 border-dashed border-[var(--color-secondary)]"><p class="font-semibold text-sm text-[var(--color-heading)]">Justification :</p><p class="italic text-sm">"${p.justification}"</p></div>`;
+                            html += createProverbCardHTML(full);
                         }
                     });
-                    dom.ai.resultFeedback.innerHTML = htmlResult;
+                    dom.ai.resultFeedback.innerHTML = html;
                 } catch (e) {
                     dom.ai.resultFeedback.innerHTML = `<p class="text-red-500 text-center">Le sage doit se reposer. Une erreur est survenue. <br><strong>Détail :</strong> ${e.message}</p>`;
                 } finally {
@@ -833,239 +740,135 @@
                     dom.ai.suggestBtn.innerHTML = `✨ Demander conseil`;
                 }
             };
+            /* --- END OF GEMINI API SECTION --- */
             
-            // --- LOGIQUE DU QUIZ ---
+            // --- QUIZ LOGIC ---
             const startQuiz = () => {
-                const quizProverbs = [];
-                const usedIds = new Set();
-                const sampleSize = Math.min(50, state.proverbs.length);
-                while(quizProverbs.length < sampleSize) {
-                    const randomIndex = Math.floor(Math.random() * state.proverbs.length);
-                    const randomProverb = state.proverbs[randomIndex];
-                    if (!usedIds.has(randomProverb.id)) {
-                        quizProverbs.push(randomProverb);
-                        usedIds.add(randomProverb.id);
-                    }
-                }
-
-                if (quizProverbs.length < 4) {
+                if (state.proverbs.length < 4) {
                     dom.quizContainer.innerHTML = `<p class="text-center text-[var(--color-text-light)]">Pas assez de données pour générer un quiz.</p>`;
                     return;
                 }
-
-                const questionType = Math.random() < 0.5 ? 'meaning' : 'theme';
-                if (questionType === 'meaning') {
-                    generateMeaningQuestion(quizProverbs);
-                } else {
-                    generateThemeQuestion(quizProverbs);
-                }
+                const sample = [...state.proverbs].sort(() => 0.5 - Math.random()).slice(0, 50);
+                Math.random() < 0.5 ? generateMeaningQuestion(sample) : generateThemeQuestion(sample);
             };
 
-            const generateMeaningQuestion = (quizProverbs) => {
-                const correctAnswer = quizProverbs[Math.floor(Math.random() * quizProverbs.length)];
-                let options = [correctAnswer];
-                while (options.length < 4) {
-                    const randomOption = quizProverbs[Math.floor(Math.random() * quizProverbs.length)];
-                    if (!options.some(opt => opt.id === randomOption.id)) {
-                        options.push(randomOption);
-                    }
-                }
-                options.sort(() => Math.random() - 0.5);
-
+            const generateMeaningQuestion = (sample) => {
+                const correctAnswer = sample[0];
+                let options = sample.slice(0, 4).sort(() => 0.5 - Math.random());
                 dom.quizContainer.innerHTML = `<p class="text-center text-lg mb-4">Que signifie ce proverbe ?</p>
                     <p class="text-2xl font-serif text-center font-bold text-[var(--color-heading)] mb-6 p-4 bg-[var(--color-bg-alt)] rounded-lg">« ${correctAnswer.kabyle} »</p>
                     <div id="quiz-options" class="space-y-3">
-                        ${options.map(opt => `<div class="quiz-option" data-id="${opt.id}" tabindex="0">${opt.francais}</div>`).join('')}
+                        ${options.map(opt => `<button class="quiz-option w-full text-left" data-id="${opt.id}">${opt.francais}</button>`).join('')}
                     </div><div id="quiz-feedback" class="mt-6 text-center"></div>`;
-                
-                dom.quizContainer.querySelector('#quiz-options').addEventListener('click', (e) => {
-                    if(e.target.closest('.quiz-option')) handleQuizAnswer(e.target.closest('.quiz-option'), correctAnswer, 'meaning', quizProverbs);
-                });
             };
 
-            const generateThemeQuestion = (quizProverbs) => {
-                const proverb = quizProverbs[Math.floor(Math.random() * quizProverbs.length)];
-                const correctThemes = proverb.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean);
-                const correctAnswer = correctThemes[Math.floor(Math.random() * correctThemes.length)];
-
-                const uniqueThemesForOptions = [...new Set(quizProverbs.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean)))];
-                
-                let options = [correctAnswer];
-                while (options.length < 4 && options.length < uniqueThemesForOptions.length) {
-                    const randomTheme = uniqueThemesForOptions[Math.floor(Math.random() * uniqueThemesForOptions.length)];
+            const generateThemeQuestion = (sample) => {
+                const proverb = sample[0];
+                const correctTheme = proverb.theme.split(/[,/]/)[0].trim().replace(/[()]/g, '');
+                const allThemes = [...new Set(sample.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean)))];
+                let options = [correctTheme];
+                while (options.length < 4 && options.length < allThemes.length) {
+                    const randomTheme = allThemes[Math.floor(Math.random() * allThemes.length)];
                     if (!options.includes(randomTheme)) options.push(randomTheme);
                 }
-                options.sort(() => Math.random() - 0.5);
-
+                options.sort(() => 0.5 - Math.random());
                 dom.quizContainer.innerHTML = `<p class="text-center text-lg mb-4">Quel est le thème principal de ce proverbe ?</p>
                     <div class="mb-6 p-4 bg-[var(--color-bg-alt)] rounded-lg text-center">
                         <p class="text-xl font-serif font-bold text-[var(--color-heading)] italic">« ${proverb.kabyle} »</p>
                         <p class="text-[var(--color-text-light)]">— ${proverb.francais}</p>
                     </div>
                     <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        ${options.map(opt => `<div class="quiz-option text-center" data-theme="${opt}" tabindex="0">${opt}</div>`).join('')}
+                        ${options.map(opt => `<button class="quiz-option text-center" data-theme="${opt}">${opt}</button>`).join('')}
                     </div><div id="quiz-feedback" class="mt-6 text-center"></div>`;
-
-                dom.quizContainer.querySelector('#quiz-options').addEventListener('click', (e) => {
-                    if(e.target.closest('.quiz-option')) handleQuizAnswer(e.target.closest('.quiz-option'), correctAnswer, 'theme', quizProverbs);
-                });
             };
             
-            const handleQuizAnswer = (selectedElement, correctAnswer, type) => {
-                const isCorrect = (type === 'meaning')
-                    ? parseInt(selectedElement.dataset.id) === correctAnswer.id
-                    : normalizeText(selectedElement.dataset.theme) === normalizeText(correctAnswer);
-
+            const handleQuizAnswer = (selected, correctAnswer, type) => {
+                const isCorrect = (type === 'meaning') ? parseInt(selected.dataset.id) === correctAnswer.id : normalizeText(selected.dataset.theme) === normalizeText(correctAnswer);
                 document.querySelectorAll('.quiz-option').forEach(el => {
-                    el.setAttribute('disabled', true);
-                    const elIsCorrect = (type === 'meaning')
-                        ? parseInt(el.dataset.id) === correctAnswer.id
-                        : normalizeText(el.dataset.theme) === normalizeText(correctAnswer);
-                    if(elIsCorrect) el.classList.add('correct');
+                    el.disabled = true;
+                    if ((type === 'meaning' ? parseInt(el.dataset.id) === correctAnswer.id : normalizeText(el.dataset.theme) === normalizeText(correctAnswer))) {
+                        el.classList.add('correct');
+                    }
                 });
+                if(!isCorrect) selected.classList.add('incorrect');
                 
-                if(!isCorrect) selectedElement.classList.add('incorrect');
-                
-                const feedback = dom.quizContainer.querySelector('#quiz-feedback');
-                const correctAnswerText = type === 'meaning' ? correctAnswer.francais : correctAnswer;
-                feedback.innerHTML = `<p class="text-xl font-bold ${isCorrect ? 'text-green-500' : 'text-red-500'}">${isCorrect ? 'Bravo !' : 'Dommage !'}</p>
-                    ${!isCorrect ? `<p class="mt-2">La bonne réponse était : <strong class="font-semibold">"${correctAnswerText}"</strong></p>` : ''}
-                    <button id="next-quiz-btn" class="mt-4 px-6 py-2 bg-[var(--color-primary)] text-white font-semibold rounded-lg shadow-md hover:scale-105 transition-transform">Question suivante</button>`;
-                
-                const nextBtn = document.getElementById('next-quiz-btn');
-                nextBtn.addEventListener('click', startQuiz);
-                nextBtn.focus();
+                const feedbackText = isCorrect ? `<p class="text-xl font-bold text-green-500">Bravo !</p>` : `<p class="text-xl font-bold text-red-500">Dommage !</p><p class="mt-2">La bonne réponse était : <strong>"${type === 'meaning' ? correctAnswer.francais : correctAnswer}"</strong></p>`;
+                dom.quizContainer.querySelector('#quiz-feedback').innerHTML = `${feedbackText}<button id="next-quiz-btn" class="mt-4 px-6 py-2 bg-[var(--color-primary)] text-white font-semibold rounded-lg shadow-md hover:scale-105 transition-transform">Question suivante</button>`;
+                document.getElementById('next-quiz-btn').focus();
             };
 
-            // --- GESTION DES ÉVÉNEMENTS ---
+            // --- EVENT LISTENERS SETUP ---
             const setupEventListeners = () => {
-                dom.searchInput.addEventListener('input', debounce(() => {
-                    if (dom.searchInput.value.length < 1 && state.activeTheme === 'tous') {
-                        dom.resultsContainer.innerHTML = '';
-                        dom.initialLoadMessage.classList.remove('hidden');
-                        dom.resultsFeedback.textContent = '';
-                        dom.noResults.classList.add('hidden');
-                        dom.loadMoreBtn.classList.add('hidden');
-                        state.displayedProverbs = [];
-                        updateAvailableThemes();
-                        return;
-                    }
-                    loadNextChunk(true);
-                }, 300));
-                
-                dom.clearSearchBtn.addEventListener('click', () => {
-                    dom.searchInput.value = '';
-                    dom.resultsContainer.innerHTML = '';
-                    dom.initialLoadMessage.classList.remove('hidden');
-                    dom.resultsFeedback.textContent = '';
-                    dom.noResults.classList.add('hidden');
-                    dom.loadMoreBtn.classList.add('hidden');
-                    state.displayedProverbs = [];
-                    updateAvailableThemes();
-                    dom.searchInput.focus();
-                });
-                
-                dom.loadMoreBtn.addEventListener('click', () => {
-                    dom.loadMoreBtn.classList.add('loading');
-                    loadNextChunk(false);
-                    dom.loadMoreBtn.classList.remove('loading');
-                });
-
-                dom.goToExplorerBtn.addEventListener('click', () => setActiveTab('explorer-tab'));
-                
+                dom.searchInput.addEventListener('input', debounce(() => loadNextChunk(true), DEBOUNCE_DELAY));
+                dom.clearSearchBtn.addEventListener('click', () => { dom.searchInput.value = ''; loadNextChunk(true); dom.searchInput.focus(); });
+                dom.loadMoreBtn.addEventListener('click', () => loadNextChunk(false));
                 dom.randomBtn.addEventListener('click', () => {
-                    if (!state.isCoreDataLoaded) return showToast("Veuillez attendre le chargement des proverbes.", true);
-
-                    const hasActiveFilter = dom.searchInput.value.trim() || state.activeTheme !== 'tous';
-                    const sourceProverbs = hasActiveFilter ? filterProverbs() : state.proverbs;
-
+                    if (!state.isDataLoaded) return;
+                    const source = filterProverbs().length > 0 ? filterProverbs() : state.proverbs;
+                    const random = [...source].sort(() => 0.5 - Math.random()).slice(0, 20);
+                    state.displayedProverbs = random;
+                    renderChunk(dom.resultsContainer, random, dom.searchInput.value, false);
+                    updateAvailableThemes();
+                    dom.resultsFeedback.textContent = `Affichage de ${random.length} proverbes aléatoires.`;
+                    dom.noResults.classList.add('hidden');
                     dom.initialLoadMessage.classList.add('hidden');
                     dom.loadMoreBtn.classList.add('hidden');
-
-                    if (sourceProverbs.length === 0) {
-                        dom.resultsContainer.innerHTML = '';
-                        dom.noResults.classList.remove('hidden');
-                        dom.resultsFeedback.textContent = 'Aucun proverbe ne correspond pour un tirage aléatoire.';
-                        state.displayedProverbs = [];
-                        updateAvailableThemes();
-                        return;
-                    }
-                    
-                    dom.noResults.classList.add('hidden');
-
-                    const randomProverbs = [];
-                    const usedIds = new Set();
-                    const count = Math.min(20, sourceProverbs.length);
-
-                    while (randomProverbs.length < count) {
-                        const randomIndex = Math.floor(Math.random() * sourceProverbs.length);
-                        const randomProverb = sourceProverbs[randomIndex];
-                        if (!usedIds.has(randomProverb.id)) {
-                            randomProverbs.push(randomProverb);
-                            usedIds.add(randomProverb.id);
-                        }
-                    }
-
-                    renderChunk(dom.resultsContainer, randomProverbs, dom.searchInput.value, false);
-                    state.displayedProverbs = randomProverbs;
-                    updateAvailableThemes();
-                    
-                    let feedback = `Affichage de ${count} proverbes aléatoires`;
-                    if (hasActiveFilter) {
-                        feedback += ` correspondant à vos critères.`;
-                    } else {
-                        feedback += `.`;
-                    }
-                    dom.resultsFeedback.textContent = feedback;
                 });
 
                 window.addEventListener('scroll', () => dom.backToTopBtn.classList.toggle('visible', window.scrollY > 300));
                 dom.backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-                dom.navButtons.forEach(button => button.addEventListener('click', () => setActiveTab(button.dataset.tab)));
-
-                dom.themeListContainer.addEventListener('click', (e) => {
-                    if (e.target.matches('.theme-pill-button')) {
-                        state.activeTheme = e.target.dataset.theme;
-                        sessionStorage.setItem('inzan_theme_filter', state.activeTheme);
-                        dom.themeListContainer.querySelector('.active')?.classList.remove('active');
-                        e.target.classList.add('active');
-                        e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                        loadNextChunk(true);
-                    }
-                });
-
+                
+                window.addEventListener('hashchange', handleHashChange);
+                
+                // Event Delegation
                 document.body.addEventListener('click', e => {
-                    const card = e.target.closest('[data-id]');
-                    if (!card) return;
+                    // Theme filter pills
+                    const themePill = e.target.closest('.theme-pill-button');
+                    if (themePill) {
+                        state.activeTheme = themePill.dataset.theme;
+                        loadNextChunk(true);
+                        dom.themeListContainer.querySelector('.active')?.classList.remove('active');
+                        themePill.classList.add('active');
+                        return;
+                    }
                     
-                    const proverbId = parseInt(card.dataset.id);
-                    const proverb = state.proverbs.find(p => p.id === proverbId);
-                    if (!proverb) return;
+                    // Card actions
+                    const card = e.target.closest('[data-id]');
+                    if (card) {
+                        const proverbId = parseInt(card.dataset.id);
+                        const proverb = state.proverbs.find(p => p.id === proverbId);
+                        if (!proverb) return;
 
-                    if (e.target.closest('.explain-btn')) getProverbExplanation(proverb);
-                    if (e.target.closest('.favorite-btn')) toggleFavorite(proverbId);
-                    if (e.target.closest('.copy-btn')) navigator.clipboard.writeText(`« ${proverb.kabyle} »\n— ${proverb.francais}`).then(() => showToast("✅ Proverbe copié !"));
-                    if (e.target.closest('.share-btn')) {
-                        if (navigator.share) navigator.share({ title: 'Proverbe Kabyle', text: `Découvrez ce proverbe kabyle : « ${proverb.kabyle} »\n— ${proverb.francais}`, url: window.location.href }).catch(console.error);
-                        else showToast("Le partage n'est pas supporté sur ce navigateur.", true);
+                        if (e.target.closest('.explain-btn')) getProverbExplanation(proverb);
+                        else if (e.target.closest('.favorite-btn')) toggleFavorite(proverbId);
+                        else if (e.target.closest('.copy-btn')) navigator.clipboard.writeText(`« ${proverb.kabyle} »\n— ${proverb.francais}`).then(() => showToast("✅ Proverbe copié !"));
+                        else if (e.target.closest('.share-btn')) {
+                            if (navigator.share) navigator.share({ title: 'Proverbe Kabyle', text: `Découvrez ce proverbe : « ${proverb.kabyle} »\n— ${proverb.francais}`});
+                            else showToast("Le partage n'est pas supporté ici.", true);
+                        } else if (e.target.closest('.card-theme-badge')) {
+                            window.location.hash = '#explorer';
+                            setTimeout(() => {
+                                dom.searchInput.value = e.target.textContent;
+                                loadNextChunk(true);
+                            }, 50);
+                        }
+                        return;
                     }
-                    if (e.target.closest('.card-theme-badge')) {
-                         e.stopPropagation();
-                         const themeToFilter = e.target.closest('.card-theme-badge').dataset.theme;
-                         setActiveTab('explorer-tab');
-                         setTimeout(() => {
-                            dom.searchInput.value = themeToFilter;
-                            resetThemeFilter(false);
-                            loadNextChunk(true);
-                         }, 100);
+
+                    // Quiz
+                    const quizOption = e.target.closest('.quiz-option:not([disabled])');
+                    if (quizOption) {
+                        const sample = [...state.proverbs].sort(() => 0.5 - Math.random()).slice(0, 50);
+                        if (quizOption.dataset.id) handleQuizAnswer(quizOption, sample[0], 'meaning');
+                        else if (quizOption.dataset.theme) handleQuizAnswer(quizOption, sample[0].theme.split(/[,/]/)[0].trim().replace(/[()]/g, ''), 'theme');
+                        return;
                     }
+                    if (e.target.id === 'next-quiz-btn') startQuiz();
                 });
 
                 dom.modal.closeBtn.addEventListener('click', closeModal);
                 dom.modal.backdrop.addEventListener('click', closeModal);
-
-                dom.aboutBtn.addEventListener('click', () => openModal("À propos de l'Œuvre", `<p>Cette collection numérique est un hommage à la richesse de la sagesse populaire kabyle. Elle est basée sur une partie des données patiemment récoltées par Monsieur <strong>Remḍan At Menṣur</strong> dans son </strong>Dictionnaire</strong> de proverbes Kabyles, dont le travail a permis de préserver et de partager ces trésors culturels.</p><p>Ce site a pour vocation de rendre ces proverbes accessibles à tous, de manière interactive et moderne. Il a été conçu comme un outil d'apprentissage et de découverte, enrichi par des technologies contemporaines pour explorer et comprendre l'esprit de la tradition kabyle.</p>`));
+                dom.aboutBtn.addEventListener('click', () => openModal("À Propos", `<p>Cette collection numérique est un hommage à la richesse de la sagesse populaire kabyle, inspirée par les travaux de collecte et de préservation de nombreux passionnés de la culture.</p><p>Ce site a pour vocation de rendre ces proverbes accessibles à tous, de manière interactive et moderne, enrichi par des technologies contemporaines pour explorer et comprendre l'esprit de la tradition kabyle.</p>`));
 
                 dom.themeToggle.addEventListener('click', () => {
                     const isDark = dom.html.classList.toggle('dark');
@@ -1075,56 +878,53 @@
                 });
                 
                 dom.ai.suggestBtn.addEventListener('click', () => {
-                    const context = dom.ai.contextInput.value.trim();
-                    if (!context) return showToast("Veuillez décrire une situation.", true);
-                    getAISuggestion(context);
+                    if (!dom.ai.contextInput.value.trim()) return showToast("Veuillez décrire une situation.", true);
+                    getAISuggestion(dom.ai.contextInput.value.trim());
                 });
             };
             
-            // --- PROCESSUS DE DÉMARRAGE ---
-            const main = () => {
-                const savedTheme = localStorage.getItem('inzan_theme') || 'light';
-                dom.html.classList.toggle('dark', savedTheme === 'dark');
-                dom.themeIcons.light.classList.toggle('hidden', savedTheme === 'dark');
-                dom.themeIcons.dark.classList.toggle('hidden', savedTheme === 'light');
-
-                setupEventListeners();
-                setActiveTab('accueil-tab'); 
+            // --- INITIALIZATION ---
+            const main = async () => {
+                const savedTheme = localStorage.getItem('inzan_theme');
+                if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    dom.html.classList.add('dark');
+                    dom.themeIcons.light.classList.add('hidden');
+                    dom.themeIcons.dark.classList.remove('hidden');
+                }
                 
-                fetch('proverbs.json')
-                    .then(response => {
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        return response.json();
-                    })
-                    .then(data => {
-                        state.proverbs = data.map((p, index) => ({ 
-                            ...p, 
-                            id: index,
-                            kabyle_norm: normalizeText(p.kabyle),
-                            francais_norm: normalizeText(p.francais),
-                            theme_norm: normalizeText(p.theme)
-                        }));
-                        state.isCoreDataLoaded = true;
-                        
-                        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-                        const dailyProverb = state.proverbs[dayOfYear % state.proverbs.length];
-                        dom.proverbOfTheDayCard.innerHTML = createProverbCardHTML(dailyProverb, true);
+                dom.splashLogo.classList.add('zoom-in');
+                setupEventListeners();
+                
+                try {
+                    const response = await fetch('proverbs.json');
+                    if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    const data = await response.json();
+                    
+                    state.proverbs = data.map((p, id) => ({ 
+                        ...p, id,
+                        kabyle_norm: normalizeText(p.kabyle),
+                        francais_norm: normalizeText(p.francais),
+                        theme_norm: normalizeText(p.theme)
+                    }));
+                    state.isDataLoaded = true;
+                    
+                    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+                    const dailyProverb = state.proverbs[dayOfYear % state.proverbs.length];
+                    dom.proverbOfTheDayCard.innerHTML = createProverbCardHTML(dailyProverb, true);
 
-                        updateAvailableThemes();
-                        
-                        setTimeout(() => dom.splashScreen.classList.add('hidden'), 500);
-                    })
-                    .catch(error => {
-                        console.error("Could not load proverbs:", error);
-                        const errorMessage = `<h1 class="text-2xl font-bold text-red-600">Erreur de chargement</h1>
-                            <p class="text-red-500 mt-2">Impossible de charger la banque de proverbes (proverbs.json). <br> ${error.message}</p>
-                            <p class="mt-4 text-[var(--color-text-light)]">Veuillez vérifier que le fichier est bien présent et non corrompu.</p>`;
-                        dom.initialLoadMessage.innerHTML = errorMessage;
-                        dom.proverbOfTheDayCard.innerHTML = `<p class="text-center text-red-500">Erreur de chargement.</p>`;
-                        dom.themeListContainer.innerHTML = `<p class="text-center text-red-500 text-sm">Erreur.</p>`;
-                        dom.quizContainer.innerHTML = `<p class="text-center text-red-500">Erreur de chargement des données.</p>`;
-                        setTimeout(() => dom.splashScreen.classList.add('hidden'), 100);
+                    handleHashChange(); // Set initial tab from URL
+                    
+                } catch (error) {
+                    console.error("Impossible de charger les proverbes:", error);
+                    const errorMsg = `<div class="text-center p-8 bg-red-100 dark:bg-red-900/50 rounded-lg text-red-700 dark:text-red-300"><h3 class="font-bold text-xl">Erreur de chargement</h3><p>Impossible de charger la banque de proverbes. Veuillez vérifier votre connexion ou réessayer plus tard.</p><p class="text-sm mt-2">${error.message}</p></div>`;
+                    dom.proverbOfTheDayCard.innerHTML = errorMsg;
+                    ['explorer-tab', 'favoris-tab', 'ai-sage-tab', 'quiz-tab'].forEach(id => {
+                        document.getElementById(id).innerHTML = errorMsg;
                     });
+                } finally {
+                    setTimeout(() => dom.splashScreen.style.opacity = '0', 500);
+                    setTimeout(() => dom.splashScreen.style.display = 'none', 1000);
+                }
             };
 
             main();
@@ -1132,5 +932,3 @@
     </script>
 </body>
 </html>
-
-
