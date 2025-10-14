@@ -470,9 +470,7 @@
                 searchTimeout: null,
                 proverbs: [],
                 favorites: new Set(JSON.parse(localStorage.getItem('inzan_favorites')) || []),
-                uniqueThemes: [],
                 trapFocusHandler: null,
-                isDataReady: false,      // Vrai quand les données sont téléchargées et traitées
                 isCoreDataLoaded: false, // Vrai dès que le fetch est terminé
                 currentPage: 0,
                 displayedProverbs: []
@@ -565,6 +563,25 @@
                 }
             };
 
+            const updateAvailableThemes = () => {
+                if (state.displayedProverbs.length === 0) {
+                     dom.themeListContainer.innerHTML = `<p class="text-sm text-[var(--color-text-light)]">Chargez des proverbes pour voir les thèmes.</p>`;
+                     return;
+                }
+                const allThemesRaw = state.displayedProverbs.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean));
+                const uniqueNormalizedThemes = [...new Map(allThemesRaw.map(t => [normalizeText(t), t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()])).entries()];
+                uniqueNormalizedThemes.sort((a, b) => a[1].localeCompare(b[1]));
+
+                dom.themeListContainer.innerHTML = `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="tous">Tous</button>` + uniqueNormalizedThemes.map(([norm, disp]) => `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="${norm}">${disp}</button>`).join('');
+                
+                const activeThemeButton = dom.themeListContainer.querySelector(`[data-theme="${state.activeTheme}"]`);
+                if (activeThemeButton) {
+                    activeThemeButton.classList.add('active');
+                } else {
+                    dom.themeListContainer.querySelector('[data-theme="tous"]').classList.add('active');
+                }
+            };
+
             // --- LOGIQUE DE L'ONGLET EXPLORER (FILTRES/PAGINATION) ---
             const updateLoadMoreButton = (totalFilteredCount) => {
                 if (!state.isCoreDataLoaded) return;
@@ -621,6 +638,7 @@
                 state.displayedProverbs.push(...chunkToLoad);
                 state.currentPage++;
                 updateLoadMoreButton(filteredProverbs.length);
+                updateAvailableThemes();
             };
 
             // --- FONCTIONS D'AFFICHAGE ET DE NAVIGATION ---
@@ -647,9 +665,8 @@
             };
 
             const setActiveTab = (tabId) => {
-                // Vérification pour les onglets nécessitant des données complètes
-                if (['quiz-tab', 'ai-sage-tab'].includes(tabId) && !state.isDataReady) {
-                    showToast("Préparation des données, veuillez patienter...", true);
+                if (['quiz-tab', 'ai-sage-tab'].includes(tabId) && !state.isCoreDataLoaded) {
+                    showToast("Les données de base ne sont pas encore chargées.", true);
                     return;
                 }
 
@@ -658,7 +675,7 @@
                 
                 if (tabId === 'explorer-tab' && state.displayedProverbs.length === 0) loadNextChunk(true);
                 if (tabId === 'favoris-tab') renderFavorites();
-                if (tabId === 'quiz-tab' && state.isDataReady && !dom.quizContainer.querySelector('#next-quiz-btn')) startQuiz();
+                if (tabId === 'quiz-tab' && state.isCoreDataLoaded && !dom.quizContainer.querySelector('#next-quiz-btn')) startQuiz();
 
                 if (document.body.clientWidth < 640) window.scrollTo({ top: 0, behavior: 'smooth' });
             };
@@ -757,9 +774,12 @@
                 dom.ai.suggestBtn.disabled = true;
                 dom.ai.suggestBtn.innerHTML = `<span class="loader"></span> <span>Analyse...</span>`;
                 dom.ai.resultFeedback.innerHTML = '';
-                const simplifiedProverbs = state.proverbs.map(({ id, kabyle, francais }) => ({ id, kabyle, francais }));
+                
+                // Envoyer les données brutes (sans les champs normalisés)
+                const rawProverbs = state.proverbs.map(({ kabyle, francais, theme, explication }, id) => ({ id, kabyle, francais, theme, explication }));
+                
                 const systemPrompt = `Vous êtes un sage kabyle expert en proverbes. Analysez la situation de l'utilisateur et choisissez jusqu'à 2 proverbes les plus pertinents à partir de la liste fournie. Vous devez OBLIGATOIREMENT répondre avec un objet JSON valide et rien d'autre.`;
-                const userPrompt = `Situation de l'utilisateur: "${context}"\n\nListe des proverbes disponibles (limité pour l'exemple):\n${JSON.stringify(simplifiedProverbs.slice(0, 500))}\n\nChoisissez les proverbes les plus appropriés et répondez UNIQUEMENT avec un objet JSON au format suivant:\n{ "reasoning": "Votre analyse générale de la situation en une phrase.", "proverbs": [ { "id": <id_du_proverbe_1>, "justification": "Pourquoi ce proverbe est pertinent." } ] }`;
+                const userPrompt = `Situation de l'utilisateur: "${context}"\n\nListe des proverbes disponibles (limité pour l'exemple):\n${JSON.stringify(rawProverbs.slice(0, 500))}\n\nChoisissez les proverbes les plus appropriés et répondez UNIQUEMENT avec un objet JSON au format suivant:\n{ "reasoning": "Votre analyse générale de la situation en une phrase.", "proverbs": [ { "id": <id_du_proverbe_1>, "justification": "Pourquoi ce proverbe est pertinent." } ] }`;
                 
                 try {
                     const suggestion = await callGeminiAPI({
@@ -794,17 +814,25 @@
             
             // --- LOGIQUE DU QUIZ ---
             const startQuiz = () => {
+                // Créer un sous-ensemble aléatoire de 50 proverbes pour ce quiz
+                const quizProverbs = [...state.proverbs].sort(() => 0.5 - Math.random()).slice(0, 50);
+
                 const questionType = Math.random() < 0.5 ? 'meaning' : 'theme';
-                if (questionType === 'meaning') generateMeaningQuestion();
-                else generateThemeQuestion();
+                if (questionType === 'meaning') {
+                    generateMeaningQuestion(quizProverbs);
+                } else {
+                    generateThemeQuestion(quizProverbs);
+                }
             };
 
-            const generateMeaningQuestion = () => {
-                const correctAnswer = state.proverbs[Math.floor(Math.random() * state.proverbs.length)];
+            const generateMeaningQuestion = (quizProverbs) => {
+                const correctAnswer = quizProverbs[Math.floor(Math.random() * quizProverbs.length)];
                 let options = [correctAnswer];
                 while (options.length < 4) {
-                    const randomOption = state.proverbs[Math.floor(Math.random() * state.proverbs.length)];
-                    if (!options.some(opt => opt.id === randomOption.id)) options.push(randomOption);
+                    const randomOption = quizProverbs[Math.floor(Math.random() * quizProverbs.length)];
+                    if (!options.some(opt => opt.id === randomOption.id)) {
+                        options.push(randomOption);
+                    }
                 }
                 options.sort(() => Math.random() - 0.5);
 
@@ -815,18 +843,21 @@
                     </div><div id="quiz-feedback" class="mt-6 text-center"></div>`;
                 
                 dom.quizContainer.querySelector('#quiz-options').addEventListener('click', (e) => {
-                    if(e.target.closest('.quiz-option')) handleQuizAnswer(e.target.closest('.quiz-option'), correctAnswer, 'meaning');
+                    if(e.target.closest('.quiz-option')) handleQuizAnswer(e.target.closest('.quiz-option'), correctAnswer, 'meaning', quizProverbs);
                 });
             };
 
-            const generateThemeQuestion = () => {
-                const proverb = state.proverbs[Math.floor(Math.random() * state.proverbs.length)];
+            const generateThemeQuestion = (quizProverbs) => {
+                const proverb = quizProverbs[Math.floor(Math.random() * quizProverbs.length)];
                 const correctThemes = proverb.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean);
                 const correctAnswer = correctThemes[Math.floor(Math.random() * correctThemes.length)];
 
+                // Générer des thèmes uniques uniquement à partir du sous-ensemble du quiz
+                const uniqueThemesForOptions = [...new Set(quizProverbs.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean)))];
+                
                 let options = [correctAnswer];
-                while (options.length < 4) {
-                    const randomTheme = state.uniqueThemes[Math.floor(Math.random() * state.uniqueThemes.length)];
+                while (options.length < 4 && options.length < uniqueThemesForOptions.length) {
+                    const randomTheme = uniqueThemesForOptions[Math.floor(Math.random() * uniqueThemesForOptions.length)];
                     if (!options.includes(randomTheme)) options.push(randomTheme);
                 }
                 options.sort(() => Math.random() - 0.5);
@@ -841,7 +872,7 @@
                     </div><div id="quiz-feedback" class="mt-6 text-center"></div>`;
 
                 dom.quizContainer.querySelector('#quiz-options').addEventListener('click', (e) => {
-                    if(e.target.closest('.quiz-option')) handleQuizAnswer(e.target.closest('.quiz-option'), correctAnswer, 'theme');
+                    if(e.target.closest('.quiz-option')) handleQuizAnswer(e.target.closest('.quiz-option'), correctAnswer, 'theme', quizProverbs);
                 });
             };
             
@@ -981,36 +1012,6 @@
                 });
             };
             
-            // --- NOUVELLE FONCTION DE TRAITEMENT EN ARRIÈRE-PLAN ---
-            const processHeavyDataInBackground = () => {
-                // Cette fonction s'exécute après que l'UI initiale soit chargée,
-                // pour ne pas bloquer le navigateur.
-                console.log("Démarrage du traitement lourd en arrière-plan...");
-
-                // 1. Générer la liste des thèmes pour le filtre
-                const allThemesRaw = state.proverbs.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean));
-                const uniqueNormalizedThemes = [...new Map(allThemesRaw.map(t => [normalizeText(t), t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()])).entries()];
-                uniqueNormalizedThemes.sort((a, b) => a[1].localeCompare(b[1]));
-
-                dom.themeListContainer.innerHTML = `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="tous">Tous</button>` + uniqueNormalizedThemes.map(([norm, disp]) => `<button class="theme-pill-button flex-shrink-0 px-4 py-2 rounded-full bg-[var(--color-bg-alt)] shadow-sm cursor-pointer font-medium text-sm text-[var(--color-text)] hover:bg-[var(--color-primary)]/20" data-theme="${norm}">${disp}</button>`).join('');
-                
-                const activeThemeButton = dom.themeListContainer.querySelector(`[data-theme="${state.activeTheme}"]`);
-                if (activeThemeButton) activeThemeButton.classList.add('active');
-                else resetThemeFilter(false);
-               
-                state.uniqueThemes = [...new Set(allThemesRaw.map(t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()))];
-                
-                // 2. Marquer les données comme entièrement prêtes
-                state.isDataReady = true;
-                console.log("Traitement en arrière-plan terminé. Le Quiz et l'IA sont prêts.");
-
-                // 3. Préparer le Quiz si l'onglet est déjà actif
-                if (document.getElementById('quiz-tab').classList.contains('active')) {
-                    startQuiz();
-                }
-            };
-
-
             // --- PROCESSUS DE DÉMARRAGE ---
             const main = () => {
                 const savedTheme = localStorage.getItem('inzan_theme') || 'light';
@@ -1047,10 +1048,13 @@
                              loadNextChunk(true);
                         } else {
                             dom.initialLoadMessage.classList.add('hidden');
+                            updateAvailableThemes(); // Initialiser la liste des thèmes même si l'onglet n'est pas actif
                         }
-
-                        // 3. Lancement du traitement lourd en différé
-                        setTimeout(processHeavyDataInBackground, 100); 
+                        
+                        // 3. Préparer le Quiz si l'onglet est déjà actif
+                        if (document.getElementById('quiz-tab').classList.contains('active')) {
+                            startQuiz();
+                        }
 
                         // 4. Masquer l'écran de chargement
                         setTimeout(() => dom.splashScreen.classList.add('hidden'), 500);
