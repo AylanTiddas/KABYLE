@@ -299,7 +299,7 @@
                      <div class="p-4 space-y-4">
                         <div class="flex flex-col sm:flex-row gap-4 items-stretch">
                             <div class="search-wrapper flex-grow">
-                                <input type="text" id="search-input" placeholder="Rechercher par mot-clé..." aria-label="Champ de recherche de proverbe" class="w-full p-3 pr-10 border-2 border-[var(--color-border)] rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/30 transition duration-200 text-lg shadow-inner bg-[var(--color-bg-card)]">
+                                <input type="text" id="search-input" placeholder="Rechercher par mot-clé ou thème..." aria-label="Champ de recherche de proverbe" class="w-full p-3 pr-10 border-2 border-[var(--color-border)] rounded-lg focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/30 transition duration-200 text-lg shadow-inner bg-[var(--color-bg-card)]">
                                 <button class="clear-search-btn" aria-label="Vider la recherche">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
@@ -502,15 +502,11 @@
             };
 
             const highlightText = (text, query) => {
-                // *** CORRECTION START ***
-                // Gérer les cas où le texte est nul ou indéfini pour éviter les erreurs.
-                if (!text) return '';
-                // *** CORRECTION END ***
-
                 if (!query) return text;
                 const normalizedQuery = normalizeText(query);
-                const regex = new RegExp(`(?![^<]*>)${normalizedQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}`, 'gi');
-                return text.replace(regex, match => `<span class="search-highlight">${match}</span>`);
+                if (!normalizedQuery) return text;
+                const regex = new RegExp(`(${normalizedQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+                return text.replace(regex, `<span class="search-highlight">$1</span>`);
             };
             
             // --- RENDU UI DYNAMIQUE ---
@@ -554,11 +550,8 @@
                     const wrapper = document.createElement('div');
                     wrapper.innerHTML = cardHTML;
                     const cardElement = wrapper.firstElementChild;
-                    if (cardElement) {
-                        cardElement.style.animationDelay = `${i * 50}ms`;
-                        return cardElement.outerHTML;
-                    }
-                    return ''; // Ne rien retourner si la carte n'a pas pu être créée
+                    cardElement.style.animationDelay = `${i * 50}ms`;
+                    return cardElement.outerHTML;
                 }).join('');
                 
                 if (append) {
@@ -605,13 +598,20 @@
                 if (!state.isCoreDataLoaded) return [];
 
                 const query = dom.searchInput.value;
-                if (!query && state.activeTheme === 'tous') return []; // Ne rien retourner si pas de recherche
-                
                 const normalizedQuery = normalizeText(query);
                 
+                // Si aucun filtre ni recherche, ne rien afficher pour éviter de charger toute la liste.
+                if (!normalizedQuery && state.activeTheme === 'tous') return [];
+                
                 return state.proverbs.filter(p => {
-                    const themeMatch = state.activeTheme === 'tous' || normalizeText(p.theme).includes(state.activeTheme);
-                    const queryMatch = !normalizedQuery || p.kabyle_norm.includes(normalizedQuery) || p.francais_norm.includes(normalizedQuery);
+                    const themeMatch = state.activeTheme === 'tous' || p.theme_norm.includes(state.activeTheme);
+                    
+                    // La recherche par mot-clé doit aussi inclure les thèmes.
+                    const queryMatch = !normalizedQuery || 
+                                       p.kabyle_norm.includes(normalizedQuery) || 
+                                       p.francais_norm.includes(normalizedQuery) ||
+                                       p.theme_norm.includes(normalizedQuery);
+                                       
                     return themeMatch && queryMatch;
                 });
             };
@@ -632,13 +632,13 @@
                 const endIndex = startIndex + PROVERBS_PER_PAGE;
                 const chunkToLoad = filteredProverbs.slice(startIndex, endIndex);
 
-                if (chunkToLoad.length === 0 && !reset) {
-                    updateLoadMoreButton(filteredProverbs.length);
-                    return; 
+                if (chunkToLoad.length === 0 && reset) {
+                    dom.noResults.classList.remove('hidden');
+                    dom.resultsFeedback.textContent = '';
+                } else {
+                    dom.noResults.classList.add('hidden');
+                    dom.resultsFeedback.textContent = `Affichage de ${Math.min(state.displayedProverbs.length + chunkToLoad.length, filteredProverbs.length)} sur ${filteredProverbs.length} proverbes`;
                 }
-                
-                dom.noResults.classList.toggle('hidden', filteredProverbs.length > 0);
-                dom.resultsFeedback.textContent = `Affichage de ${Math.min(state.displayedProverbs.length + chunkToLoad.length, filteredProverbs.length)} sur ${filteredProverbs.length} proverbes`;
 
                 renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, !reset);
                 
@@ -679,9 +679,6 @@
 
                 dom.tabContents.forEach(content => content.classList.toggle('active', content.id === tabId));
                 dom.navButtons.forEach(button => button.classList.toggle('active', button.dataset.tab === tabId));
-                
-                // Ne plus précharger l'onglet explorer
-                // if (tabId === 'explorer-tab' && state.displayedProverbs.length === 0) loadNextChunk(true);
                 
                 if (tabId === 'favoris-tab') renderFavorites();
                 if (tabId === 'quiz-tab' && state.isCoreDataLoaded && !dom.quizContainer.querySelector('#next-quiz-btn')) startQuiz();
@@ -784,7 +781,6 @@
                 dom.ai.suggestBtn.innerHTML = `<span class="loader"></span> <span>Analyse...</span>`;
                 dom.ai.resultFeedback.innerHTML = '';
                 
-                // Envoyer les données brutes (sans les champs normalisés)
                 const rawProverbs = state.proverbs.map(({ kabyle, francais, theme, explication }, id) => ({ id, kabyle, francais, theme, explication }));
                 
                 const systemPrompt = `Vous êtes un sage kabyle expert en proverbes. Analysez la situation de l'utilisateur et choisissez jusqu'à 3 proverbes les plus pertinents à partir de la liste fournie. Vous devez OBLIGATOIREMENT répondre avec un objet JSON valide et rien d'autre.`;
@@ -823,7 +819,6 @@
             
             // --- LOGIQUE DU QUIZ ---
             const startQuiz = () => {
-                // CORRECTION: Sélection aléatoire rapide de 50 proverbes
                 const quizProverbs = [];
                 const usedIds = new Set();
                 const sampleSize = Math.min(50, state.proverbs.length);
@@ -928,7 +923,7 @@
             // --- GESTION DES ÉVÉNEMENTS ---
             const setupEventListeners = () => {
                 dom.searchInput.addEventListener('input', debounce(() => {
-                    if (dom.searchInput.value.length < 1) { // Ne pas lancer de recherche si vide
+                    if (dom.searchInput.value.length < 1) {
                         dom.resultsContainer.innerHTML = '';
                         dom.initialLoadMessage.classList.remove('hidden');
                         dom.resultsFeedback.textContent = '';
@@ -999,10 +994,7 @@
 
                 dom.themeListContainer.addEventListener('click', (e) => {
                     if (e.target.matches('.theme-pill-button')) {
-                        if (!dom.searchInput.value) {
-                             showToast("Veuillez d'abord lancer une recherche.", true);
-                             return;
-                        }
+                         // CORRECTION: Permettre le filtrage par thème même sans recherche initiale
                         state.activeTheme = e.target.dataset.theme;
                         sessionStorage.setItem('inzan_theme_filter', state.activeTheme);
                         dom.themeListContainer.querySelector('.active')?.classList.remove('active');
@@ -1033,6 +1025,7 @@
                          setActiveTab('explorer-tab');
                          setTimeout(() => {
                             dom.searchInput.value = themeToFilter;
+                            resetThemeFilter(false); // Réinitialise le thème actif pour que la recherche textuelle prenne le dessus
                             loadNextChunk(true);
                          }, 100);
                     }
@@ -1073,11 +1066,13 @@
                         return response.json();
                     })
                     .then(data => {
+                        // CORRECTION: Pré-normaliser les textes et les thèmes pour une recherche efficace
                         state.proverbs = data.map((p, index) => ({ 
                             ...p, 
                             id: index,
                             kabyle_norm: normalizeText(p.kabyle),
-                            francais_norm: normalizeText(p.francais)
+                            francais_norm: normalizeText(p.francais),
+                            theme_norm: normalizeText(p.theme)
                         }));
                         state.isCoreDataLoaded = true;
                         
@@ -1086,7 +1081,6 @@
                         const dailyProverb = state.proverbs[dayOfYear % state.proverbs.length];
                         dom.proverbOfTheDayCard.innerHTML = createProverbCardHTML(dailyProverb, true);
 
-                        // Initialiser la liste des thèmes (montrera le message initial)
                         updateAvailableThemes();
                         
                         // Masquer l'écran de chargement
