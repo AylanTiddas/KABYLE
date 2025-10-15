@@ -519,7 +519,6 @@
                 if (!query) return text;
                 const normalizedQuery = normalizeText(query);
                 if (!normalizedQuery) return text;
-                // Split query into words and highlight each one
                 const keywords = normalizedQuery.split(' ').filter(k => k.length > 0);
                 if (keywords.length === 0) return text;
 
@@ -627,9 +626,6 @@
                     
                     const queryMatch = keywords.length === 0 ? true : (() => {
                         const searchableText = `${p.kabyle_norm} ${p.francais_norm} ${p.theme_norm}`;
-                        // AMÉLIORATION : La logique `every` (ET) était trop stricte, manquant beaucoup de proverbes.
-                        // On passe à `some` (OU) pour afficher les proverbes contenant AU MOINS UN des mots-clés.
-                        // Cela augmente considérablement le nombre de résultats pertinents.
                         return keywords.some(keyword => searchableText.includes(keyword));
                     })();
                                        
@@ -645,6 +641,7 @@
                 if (reset) {
                     state.currentPage = 0;
                     state.displayedProverbs = [];
+                    dom.resultsContainer.innerHTML = ''; // Correction clé : vider ici
                     dom.initialLoadMessage.classList.add('hidden');
                 }
 
@@ -652,26 +649,17 @@
                 const endIndex = startIndex + PROVERBS_PER_PAGE;
                 const chunkToLoad = filteredProverbs.slice(startIndex, endIndex);
 
-                if (reset) {
-                    dom.resultsContainer.innerHTML = ''; 
-                    if (chunkToLoad.length === 0) {
-                        dom.noResults.classList.remove('hidden');
-                        dom.resultsFeedback.textContent = '';
-                    } else {
-                        dom.noResults.classList.add('hidden');
-                    }
-                }
-
-                if (chunkToLoad.length > 0) {
+                if (chunkToLoad.length === 0 && reset) {
+                    dom.noResults.classList.remove('hidden');
+                    dom.resultsFeedback.textContent = '';
+                } else {
+                    dom.noResults.classList.add('hidden');
                     renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, true);
                     state.displayedProverbs.push(...chunkToLoad);
-                    state.currentPage++;
-                }
-                
-                if (filteredProverbs.length > 0) {
                     dom.resultsFeedback.textContent = `Affichage de ${state.displayedProverbs.length} sur ${filteredProverbs.length} proverbes`;
                 }
-
+                
+                state.currentPage++;
                 updateLoadMoreButton(filteredProverbs.length);
                 updateAvailableThemes();
             };
@@ -687,18 +675,6 @@
                 renderChunk(dom.favoritesContainer, favoriteProverbs, '', false);
             };
             
-            const resetThemeFilter = (update = true) => {
-                state.activeTheme = 'tous';
-                sessionStorage.setItem('inzan_theme_filter', 'tous');
-                dom.themeListContainer.querySelector('.active')?.classList.remove('active');
-                const tousButton = dom.themeListContainer.querySelector('[data-theme="tous"]');
-                if (tousButton) {
-                    tousButton.classList.add('active');
-                    tousButton.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                }
-                if(update) loadNextChunk(true);
-            };
-
             const setActiveTab = (tabId) => {
                 if (['quiz-tab', 'ai-sage-tab'].includes(tabId) && !state.isCoreDataLoaded) {
                     showToast("Les données de base ne sont pas encore chargées.", true);
@@ -951,16 +927,7 @@
             // --- GESTION DES ÉVÉNEMENTS ---
             const setupEventListeners = () => {
                 dom.searchInput.addEventListener('input', debounce(() => {
-                    if (dom.searchInput.value.length < 1 && state.activeTheme === 'tous') {
-                        dom.resultsContainer.innerHTML = '';
-                        dom.initialLoadMessage.classList.remove('hidden');
-                        dom.resultsFeedback.textContent = '';
-                        dom.noResults.classList.add('hidden');
-                        dom.loadMoreBtn.classList.add('hidden');
-                        state.displayedProverbs = [];
-                        updateAvailableThemes();
-                        return;
-                    }
+                    // La seule action est d'appeler loadNextChunk avec reset=true
                     loadNextChunk(true);
                 }, 300));
                 
@@ -992,7 +959,7 @@
 
                     dom.initialLoadMessage.classList.add('hidden');
                     dom.loadMoreBtn.classList.add('hidden');
-                    dom.resultsContainer.innerHTML = ''; // Clear previous results before showing new random ones
+                    dom.resultsContainer.innerHTML = ''; 
 
                     if (sourceProverbs.length === 0) {
                         dom.noResults.classList.remove('hidden');
@@ -1024,8 +991,6 @@
                     let feedback = `Affichage de ${count} proverbes aléatoires`;
                     if (hasActiveFilter) {
                         feedback += ` correspondant à vos critères.`;
-                    } else {
-                        feedback += `.`;
                     }
                     dom.resultsFeedback.textContent = feedback;
                 });
@@ -1038,10 +1003,6 @@
                 dom.themeListContainer.addEventListener('click', (e) => {
                     if (e.target.matches('.theme-pill-button')) {
                         state.activeTheme = e.target.dataset.theme;
-                        sessionStorage.setItem('inzan_theme_filter', state.activeTheme);
-                        dom.themeListContainer.querySelector('.active')?.classList.remove('active');
-                        e.target.classList.add('active');
-                        e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                         loadNextChunk(true);
                     }
                 });
@@ -1066,8 +1027,8 @@
                          const themeToFilter = e.target.closest('.card-theme-badge').dataset.theme;
                          setActiveTab('explorer-tab');
                          setTimeout(() => {
-                            dom.searchInput.value = themeToFilter;
-                            resetThemeFilter(false);
+                            dom.searchInput.value = ''; // On ne change pas la recherche, on filtre par thème
+                            state.activeTheme = themeToFilter;
                             loadNextChunk(true);
                          }, 100);
                     }
@@ -1120,8 +1081,6 @@
                         const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
                         const dailyProverb = state.proverbs[dayOfYear % state.proverbs.length];
                         dom.proverbOfTheDayCard.innerHTML = createProverbCardHTML(dailyProverb, true);
-
-                        // Ne pas appeler updateAvailableThemes ici, car aucun proverbe n'est encore affiché dans l'explorateur
                         
                         setTimeout(() => dom.splashScreen.classList.add('hidden'), 500);
                     })
