@@ -204,7 +204,7 @@
     {"kabyle": "Afud mekruf, iẓri mekfuf, aƐebbuḍ isḥedluluf.", "francais": "La jambe paralysée, la vue éteinte, l’estomac s’accroche.", "theme": "Gourmandise, Vieillesse, Corps"},
     {"kabyle": "Afus ayeffus ur igezzem azelmaḍ.", "francais": "La main droite ne sectionne pas la gauche.", "theme": "Alliance, Solidarité, Clan"},
     {"kabyle": "Afus deg ufus, taƐekkwemt ẓẓayen a ttifsus.", "francais": "Main dans la main, la charge lourde devient légère.", "theme": "Entraide, Solidarité, Coopération"},
-    {"kabyle": "Afus iɛemden i wurɣu, yerɣ meqqar i wayen yelhan", "francais": "La main qui accepte la brûlure, qu’elle se brûle pour le meilleur", "theme": "Sacrifice"}
+    {"kabyle": "Afus iɛemden i wurɣu, yerɣ meqqar i wayen yelhan", "francais": "La main qui accepte la brûlure, qu’elle se brûle pour le meilleur", "theme": "Sacrifice"},
     {"kabyle": "Afus iqquṛ, imi isfiṭṭuṛ.", "francais": "La main est sèche (ne donne rien), la bouche divague.", "theme": "Vaines promesses, Avarice, Inaction"},
     {"kabyle": "Afus n Ṛebbi ɣezzif.", "francais": "La main de Dieu est longue.", "theme": "Omnipotence divine, Justice, Providence"},
     {"kabyle": "Afus, ma ur tewƐiḍ, ad t-tkerrceḍ, ssuden-it!", "francais": "La main que tu ne peux mordre, embrasse-la !", "theme": "Tactique, Diplomatie, Soumission stratégique"},
@@ -2096,6 +2096,7 @@
     {"kabyle": "Zznad n tmekwḥelt ifcel.", "francais": "Le chien du fusil est détraqué.", "theme": "lassitude"},
     {"kabyle": "Zzuɣer (skerker) acifuḍ ar d ias warkas.", "francais": "Traîne des sandales jusqu’à avoir des souliers.", "theme": "Patience, Progression, Effort"},
     {"kabyle": "Zzux illa, adrim ulac.", "francais": "La fierté est là, l’argent est absent.", "theme": "Orgueil, Pauvreté, Apparence"},
-    {"kabyle": "Zzux, lfuxx !", "francais": "Orgueilleux et emphatique !", "theme": "tares additionnées"},
+    {"kabyle": "Zzux, lfuxx !", "francais": "Orgueilleux et emphatique !", "theme": "tares additionnées"}
 ]
+
 
