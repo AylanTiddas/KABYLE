@@ -982,9 +982,9 @@
 
                     dom.initialLoadMessage.classList.add('hidden');
                     dom.loadMoreBtn.classList.add('hidden');
+                    dom.resultsContainer.innerHTML = ''; // Clear previous results before showing new random ones
 
                     if (sourceProverbs.length === 0) {
-                        dom.resultsContainer.innerHTML = '';
                         dom.noResults.classList.remove('hidden');
                         dom.resultsFeedback.textContent = 'Aucun proverbe ne correspond pour un tirage aléatoire.';
                         state.displayedProverbs = [];
@@ -1133,7 +1133,3 @@
     </script>
 </body>
 </html>
-
-
-
-
