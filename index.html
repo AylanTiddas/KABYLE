@@ -636,32 +636,42 @@
 
             const loadNextChunk = (reset = false) => {
                 if (!state.isCoreDataLoaded) return;
-                
+
                 const filteredProverbs = filterProverbs();
-                
+
                 if (reset) {
                     state.currentPage = 0;
                     state.displayedProverbs = [];
-                    dom.resultsContainer.innerHTML = '';
                     dom.initialLoadMessage.classList.add('hidden');
                 }
-                
+
                 const startIndex = state.currentPage * PROVERBS_PER_PAGE;
                 const endIndex = startIndex + PROVERBS_PER_PAGE;
                 const chunkToLoad = filteredProverbs.slice(startIndex, endIndex);
 
-                if (chunkToLoad.length === 0 && reset) {
-                    dom.noResults.classList.remove('hidden');
-                    dom.resultsFeedback.textContent = '';
-                } else {
-                    dom.noResults.classList.add('hidden');
-                    dom.resultsFeedback.textContent = `Affichage de ${Math.min(state.displayedProverbs.length + chunkToLoad.length, filteredProverbs.length)} sur ${filteredProverbs.length} proverbes`;
+                // Gérer l'état de l'affichage (message "aucun résultat" ou feedback)
+                if (reset) {
+                    dom.resultsContainer.innerHTML = ''; // Toujours vider le conteneur lors d'une nouvelle recherche/filtre
+                    if (chunkToLoad.length === 0) {
+                        dom.noResults.classList.remove('hidden');
+                        dom.resultsFeedback.textContent = '';
+                    } else {
+                        dom.noResults.classList.add('hidden');
+                    }
                 }
 
-                renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, true); // Always append after first load
+                if (chunkToLoad.length > 0) {
+                    renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, true); // Toujours ajouter, car le conteneur a été vidé si nécessaire
+                    state.displayedProverbs.push(...chunkToLoad);
+                    state.currentPage++;
+                }
                 
-                state.displayedProverbs.push(...chunkToLoad);
-                state.currentPage++;
+                // Mettre à jour le feedback après avoir potentiellement ajouté des proverbes
+                if (filteredProverbs.length > 0) {
+                    dom.resultsFeedback.textContent = `Affichage de ${state.displayedProverbs.length} sur ${filteredProverbs.length} proverbes`;
+                }
+
+
                 updateLoadMoreButton(filteredProverbs.length);
                 updateAvailableThemes();
             };
@@ -1133,3 +1143,4 @@
     </script>
 </body>
 </html>
+
