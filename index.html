@@ -627,7 +627,10 @@
                     
                     const queryMatch = keywords.length === 0 ? true : (() => {
                         const searchableText = `${p.kabyle_norm} ${p.francais_norm} ${p.theme_norm}`;
-                        return keywords.every(keyword => searchableText.includes(keyword));
+                        // AMÉLIORATION : La logique `every` (ET) était trop stricte, manquant beaucoup de proverbes.
+                        // On passe à `some` (OU) pour afficher les proverbes contenant AU MOINS UN des mots-clés.
+                        // Cela augmente considérablement le nombre de résultats pertinents.
+                        return keywords.some(keyword => searchableText.includes(keyword));
                     })();
                                        
                     return themeMatch && queryMatch;
@@ -649,9 +652,8 @@
                 const endIndex = startIndex + PROVERBS_PER_PAGE;
                 const chunkToLoad = filteredProverbs.slice(startIndex, endIndex);
 
-                // Gérer l'état de l'affichage (message "aucun résultat" ou feedback)
                 if (reset) {
-                    dom.resultsContainer.innerHTML = ''; // Toujours vider le conteneur lors d'une nouvelle recherche/filtre
+                    dom.resultsContainer.innerHTML = ''; 
                     if (chunkToLoad.length === 0) {
                         dom.noResults.classList.remove('hidden');
                         dom.resultsFeedback.textContent = '';
@@ -661,16 +663,14 @@
                 }
 
                 if (chunkToLoad.length > 0) {
-                    renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, true); // Toujours ajouter, car le conteneur a été vidé si nécessaire
+                    renderChunk(dom.resultsContainer, chunkToLoad, dom.searchInput.value, true);
                     state.displayedProverbs.push(...chunkToLoad);
                     state.currentPage++;
                 }
                 
-                // Mettre à jour le feedback après avoir potentiellement ajouté des proverbes
                 if (filteredProverbs.length > 0) {
                     dom.resultsFeedback.textContent = `Affichage de ${state.displayedProverbs.length} sur ${filteredProverbs.length} proverbes`;
                 }
-
 
                 updateLoadMoreButton(filteredProverbs.length);
                 updateAvailableThemes();
@@ -1121,7 +1121,7 @@
                         const dailyProverb = state.proverbs[dayOfYear % state.proverbs.length];
                         dom.proverbOfTheDayCard.innerHTML = createProverbCardHTML(dailyProverb, true);
 
-                        updateAvailableThemes();
+                        // Ne pas appeler updateAvailableThemes ici, car aucun proverbe n'est encore affiché dans l'explorateur
                         
                         setTimeout(() => dom.splashScreen.classList.add('hidden'), 500);
                     })
