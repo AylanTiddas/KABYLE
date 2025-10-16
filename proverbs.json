@@ -288,7 +288,7 @@
     {"kabyle": "Albaɛḍ, meskin, inḥaf, ayen yibɣa ur t ittaf !", "francais": "Quelqu’un, le pauvre, se donne de la peine, mais ne trouve pas ce qu’il désire.", "theme": "Effort vain"},
     {"kabyle": "Alemman tegḍ-as tallalt, i bu yirbiben d tuknant ?", "francais": "Jusqu’à quand approvisionneras-tu le bigame aux enfants d’un premier lit ?", "theme": "rejet de la polygamie"},
     {"kabyle": "Aleqqim, aleqqim, taẓallit teqqim.", "francais": "Bouchée après bouchée, la prière est délaissée.", "theme": "Gourmandise, Négligence, Priorité"},
-    {"kabyle": "Allen im d awermi, ayen ẓrant, ad innerni !", "francais": "Que tes yeux soient comme la rue, ce su'ils voient s'améliore !", "theme": "Conjuration, Exorcisme, Mauvais œil"},
+    {"kabyle": "Allen im d awermi, ayen ẓrant, ad innerni !", "francais": "Que tes yeux soient comme la rue, ce qu'ils voient s'améliore !", "theme": "Conjuration, Exorcisme, Mauvais œil"},
     {"kabyle": "Allen yizhan, d imnernan.", "francais": "Les yeux joyeux portent bonheur.", "theme": "Enthousiasme, Gaieté, Bonheur"},
     {"kabyle": "Am At Tizi Yibel, i gttnezzihen i waḍu.", "francais": "Tels les habitants de Tizi Ibel, spectateurs du vent.", "theme": "Loisir, Oisiveté, Contemplation"},
     {"kabyle": "Am dderya n taɣaṭ, mi d ilul, ibedd.", "francais": "Tel le chevreau, il est debout à sa naissance.", "theme": "Enfant précoce"},
@@ -2218,4 +2218,5 @@
     {"kabyle": "Zzux illa, adrim ulac.", "francais": "La fierté est là, l’argent est absent.", "theme": "Orgueil, Pauvreté, Apparence"},
     {"kabyle": "Zzux, lfuxx !", "francais": "Orgueilleux et emphatique !", "theme": "tares additionnées"}
 ]
+
 
