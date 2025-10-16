@@ -524,7 +524,8 @@
             // --- RENDU UI DYNAMIQUE ---
             const createProverbCardHTML = (proverb, isDaily = false, query = '') => {
                 if (!proverb) return '';
-                const themes = proverb.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean);
+                // Correction : S'assurer que 'proverb.theme' existe avant de faire .split()
+                const themes = (proverb.theme || '').split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean);
                 const themesHtml = themes.map(theme => `<button class="card-theme-badge px-2 py-1 rounded-full text-xs font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary)]" data-theme="${normalizeText(theme)}">${theme.charAt(0).toUpperCase() + theme.slice(1).toLowerCase()}</button>`).join('');
                 
                 const cardClasses = isDaily 
@@ -576,7 +577,7 @@
             const updateAvailableThemes = () => {
                 if (!state.isCoreDataLoaded) return;
                 const source = state.displayedProverbs.length > 0 ? state.displayedProverbs : state.proverbs;
-                const allThemesRaw = source.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean));
+                const allThemesRaw = source.flatMap(p => (p.theme || '').split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean));
                 const uniqueNormalizedThemes = [...new Map(allThemesRaw.map(t => [normalizeText(t), t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()])).entries()];
                 uniqueNormalizedThemes.sort((a, b) => a[1].localeCompare(b[1]));
 
@@ -596,11 +597,11 @@
                 const keywords = normalizedQuery.split(' ').filter(k => k.length > 0);
 
                 return state.proverbs.filter(p => {
-                    const themeMatch = state.activeTheme === 'tous' || p.theme_norm.includes(state.activeTheme);
+                    const themeMatch = state.activeTheme === 'tous' || (p.theme_norm || '').includes(state.activeTheme);
                     if (!themeMatch) return false;
                     
                     const queryMatch = keywords.length === 0 || keywords.every(keyword => 
-                        `${p.kabyle_norm} ${p.francais_norm} ${p.theme_norm}`.includes(keyword)
+                        `${p.kabyle_norm || ''} ${p.francais_norm || ''} ${p.theme_norm || ''}`.includes(keyword)
                     );
                     return queryMatch;
                 });
@@ -876,10 +877,10 @@
 
             const generateThemeQuestion = (quizProverbs) => {
                 const proverb = quizProverbs[Math.floor(Math.random() * quizProverbs.length)];
-                const correctThemes = proverb.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean);
+                const correctThemes = (proverb.theme || '').split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean);
                 const correctAnswer = correctThemes[Math.floor(Math.random() * correctThemes.length)];
 
-                const uniqueThemesForOptions = [...new Set(quizProverbs.flatMap(p => p.theme.split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean)))];
+                const uniqueThemesForOptions = [...new Set(quizProverbs.flatMap(p => (p.theme || '').split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean)))];
                 
                 let options = [correctAnswer];
                 while (options.length < 4 && options.length < uniqueThemesForOptions.length) {
@@ -1086,10 +1087,14 @@
                     })
                     .catch(error => {
                         console.error("Could not load proverbs:", error);
-                        const errorMessage = `<h1 class="text-2xl font-bold text-red-600">Erreur de chargement</h1>
-                            <p class="text-red-500 mt-2">Impossible de charger la banque de proverbes (proverbs.json). <br> ${error.message}</p>
-                            <p class="mt-4 text-[var(--color-text-light)]">Veuillez vérifier que le fichier est bien présent et non corrompu.</p>`;
-                        dom.initialLoadMessage.innerHTML = errorMessage;
+                        const errorMessage = `<div class="text-center p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                            <h1 class="text-2xl font-bold text-red-600 dark:text-red-400">Erreur de chargement</h1>
+                            <p class="text-red-500 dark:text-red-300 mt-2">Impossible de charger la banque de proverbes (proverbs.json).</p>
+                            <p class="mt-4 text-[var(--color-text-light)] text-sm">Veuillez vérifier que le fichier est bien présent à la racine du site et que son contenu est un JSON valide. L'erreur la plus probable est un chemin de fichier incorrect ou un fichier corrompu.</p>
+                            <p class="font-mono bg-red-100 dark:bg-red-900/30 text-xs p-2 mt-3 rounded">Détail : ${error.message}</p>
+                            </div>`;
+                        dom.resultsContainer.innerHTML = `<div class="md:col-span-2 xl:col-span-3">${errorMessage}</div>`;
+                        dom.initialLoadMessage.classList.add('hidden');
                         dom.proverbOfTheDayCard.innerHTML = `<p class="text-center text-red-500">Erreur de chargement.</p>`;
                         dom.themeListContainer.innerHTML = `<p class="text-center text-red-500 text-sm">Erreur.</p>`;
                         dom.quizContainer.innerHTML = `<p class="text-center text-red-500">Erreur de chargement des données.</p>`;
