@@ -512,6 +512,7 @@
             };
 
             const highlightText = (text, query) => {
+                if (!text) return text;
                 if (!query) return text;
                 const normalizedQuery = normalizeText(query);
                 if (!normalizedQuery) return text;
@@ -524,7 +525,6 @@
             // --- RENDU UI DYNAMIQUE ---
             const createProverbCardHTML = (proverb, isDaily = false, query = '') => {
                 if (!proverb) return '';
-                // Correction : S'assurer que 'proverb.theme' existe avant de faire .split()
                 const themes = (proverb.theme || '').split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean);
                 const themesHtml = themes.map(theme => `<button class="card-theme-badge px-2 py-1 rounded-full text-xs font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary)]" data-theme="${normalizeText(theme)}">${theme.charAt(0).toUpperCase() + theme.slice(1).toLowerCase()}</button>`).join('');
                 
@@ -878,6 +878,10 @@
             const generateThemeQuestion = (quizProverbs) => {
                 const proverb = quizProverbs[Math.floor(Math.random() * quizProverbs.length)];
                 const correctThemes = (proverb.theme || '').split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean);
+                if (correctThemes.length === 0) { // Fallback if a proverb has no theme
+                    startQuiz();
+                    return;
+                }
                 const correctAnswer = correctThemes[Math.floor(Math.random() * correctThemes.length)];
 
                 const uniqueThemesForOptions = [...new Set(quizProverbs.flatMap(p => (p.theme || '').split(/[,/]/).map(t => t.trim().replace(/[()]/g, '')).filter(Boolean)))];
@@ -953,40 +957,44 @@
                 dom.goToExplorerBtn.addEventListener('click', () => setActiveTab('explorer-tab'));
                 
                 dom.randomBtn.addEventListener('click', () => {
-                    if (!state.isCoreDataLoaded) return showToast("Veuillez attendre le chargement des proverbes.", true);
+                    if (!state.isCoreDataLoaded) {
+                        return showToast("Veuillez attendre le chargement des proverbes.", true);
+                    }
+                    
+                    // La fonction filterProverbs utilise déjà la recherche et le thème actuels
+                    const matchingProverbs = filterProverbs();
 
-                    dom.searchInput.value = '';
-                    state.activeTheme = 'tous';
-                    updateAvailableThemes();
-
+                    // Cacher les messages et loaders
                     dom.initialLoadMessage.classList.add('hidden');
                     dom.loaderContainer.classList.add('hidden');
-                    dom.resultsContainer.innerHTML = ''; 
+                    dom.resultsContainer.innerHTML = '';
 
-                    if (state.proverbs.length === 0) {
+                    if (matchingProverbs.length === 0) {
                         dom.noResults.classList.remove('hidden');
+                        dom.resultsFeedback.textContent = 'Aucun proverbe ne correspond à vos critères pour un tirage aléatoire.';
                         state.displayedProverbs = [];
+                        updateAvailableThemes();
                         return;
                     }
                     
                     dom.noResults.classList.add('hidden');
 
-                    const randomProverbs = [];
-                    const usedIds = new Set();
-                    const count = Math.min(20, state.proverbs.length);
+                    // Mélanger tous les proverbes correspondants
+                    const shuffledProverbs = matchingProverbs.sort(() => 0.5 - Math.random());
+                    
+                    // Sélectionner un sous-ensemble à afficher
+                    const count = Math.min(20, shuffledProverbs.length);
+                    const randomSelection = shuffledProverbs.slice(0, count);
 
-                    while (randomProverbs.length < count) {
-                        const randomIndex = Math.floor(Math.random() * state.proverbs.length);
-                        const randomProverb = state.proverbs[randomIndex];
-                        if (!usedIds.has(randomProverb.id)) {
-                            randomProverbs.push(randomProverb);
-                            usedIds.add(randomProverb.id);
-                        }
-                    }
+                    // Afficher la nouvelle sélection aléatoire
+                    renderChunk(dom.resultsContainer, randomSelection, dom.searchInput.value, false);
 
-                    renderChunk(dom.resultsContainer, randomProverbs, '', false);
-                    state.displayedProverbs = randomProverbs;
-                    dom.resultsFeedback.textContent = `Affichage de ${count} proverbes aléatoires.`;
+                    // Mettre à jour l'état de l'application
+                    state.displayedProverbs = randomSelection;
+                    updateAvailableThemes();
+                    
+                    // Mettre à jour le message de feedback
+                    dom.resultsFeedback.textContent = `Affichage d'une sélection aléatoire de ${count} sur ${matchingProverbs.length} proverbes correspondants.`;
                 });
 
                 window.addEventListener('scroll', () => dom.backToTopBtn.classList.toggle('visible', window.scrollY > 300));
@@ -1068,6 +1076,9 @@
                         return response.json();
                     })
                     .then(data => {
+                        if (!Array.isArray(data)) {
+                           throw new Error("Le fichier proverbs.json n'est pas un tableau (Array) valide.");
+                        }
                         state.proverbs = data.map((p, index) => ({ 
                             ...p, 
                             id: index,
