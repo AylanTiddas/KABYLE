@@ -1,7 +1,7 @@
 [
     {"kabyle": "« Ax » iqqaṛ-it, maɛna yettɛuccur.", "francais": "Il dit : « tiens », mais il est recroquevillé.", "theme": "Avarice, Contradiction, Fausseté"},
     {"kabyle": "« Azul » itekkes acuffu, « anṣuf » itekkes aɣunzu.", "francais": "« Salut » met fin à l'arrogance, « bienvenue » met fin à la fâcherie.", "theme": "Apaisement"},
-    {"kabyle": "« Err ! » isdukwkl iɣyal.", "francais": "« Hue ! » associe les ânes.", "theme": "imbécillité"},
+    {"kabyle": "« Err ! » isdukkel iɣyal.", "francais": "« Hue ! » associe les ânes.", "theme": "imbécillité"},
     {"kabyle": "A Bab usigna d waḍu, menɛ-iyi si nɣenbalu.", "francais": "Ô Maître des nuages et du vent, protège-moi d’une mort par balle !", "theme": "Horreur des vendettas"},
     {"kabyle": "A baba wwten-aɣ; a mmi εeqlen-aɣ.", "francais": "Père, on nous a frappés ; fils, on nous a remarqués (étudiés)", "theme": "Faiblesse, Naïveté"},
     {"kabyle": "A benyaɛqub, a ccmata, taglimt-ik tenza di ttlata !", "francais": "Ô chacal, ô l’ignoble, ta peau a été vendue au marché du mardi !", "theme": "Trahison, Châtiment, Vengeance"},
@@ -2218,6 +2218,7 @@
     {"kabyle": "Zzux illa, adrim ulac.", "francais": "La fierté est là, l’argent est absent.", "theme": "Orgueil, Pauvreté, Apparence"},
     {"kabyle": "Zzux, lfuxx !", "francais": "Orgueilleux et emphatique !", "theme": "tares additionnées"}
 ]
+
 
 
 
