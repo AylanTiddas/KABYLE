@@ -3,127 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kanoun Agouni N'Teselent (1892) - Numérisé</title>
+    <title>Le Kanoun d'Agouni N'Teselent (1892) - Intégrale</title>
     <style>
         :root {
             --primary: #2c3e50;
-            --accent: #c0392b;
-            --bg: #f4f4f9;
+            --accent: #c0392b; /* Rouge terre cuite kabyle */
+            --highlight: #e67e22;
+            --bg: #fdfbf7; /* Couleur papier ancien */
             --card-bg: #ffffff;
+            --text: #2d3436;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
             background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 20px;
-            color: #333;
+            line-height: 1.6;
         }
+
+        /* En-tête */
         header {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: var(--primary);
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--primary), #34495e);
             color: white;
-            border-radius: 8px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
+
+        header h1 { margin: 0; font-size: 2.5em; letter-spacing: 1px; }
+        header p { opacity: 0.9; font-size: 1.1em; margin-top: 10px; }
+
+        /* Contrôles de recherche */
         .controls {
-            max-width: 800px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 1000px;
             margin: 0 auto 30px auto;
             display: flex;
-            gap: 10px;
+            gap: 15px;
             flex-wrap: wrap;
-            justify-content: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid #ddd;
         }
+
+        .search-box {
+            flex: 2;
+            min-width: 250px;
+            position: relative;
+        }
+
         input[type="text"] {
-            padding: 12px;
             width: 100%;
-            max-width: 400px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
         }
+        input[type="text"]:focus { border-color: var(--primary); outline: none; }
+
         select {
+            flex: 1;
+            min-width: 200px;
             padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 16px;
+            background-color: white;
+            cursor: pointer;
         }
-        .stats-panel {
-            max-width: 800px;
-            margin: 0 auto 20px auto;
-            background: #e8f6f3;
-            padding: 10px;
-            border-radius: 4px;
+
+        /* Stats */
+        .stats-bar {
             text-align: center;
-            border: 1px solid #d1f2eb;
+            margin-bottom: 20px;
             font-weight: bold;
-            color: #16a085;
+            color: var(--primary);
+            font-size: 0.9em;
         }
+
+        /* Grille des articles */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
             margin: 0 auto;
         }
+
         .card {
             background: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            border-left: 5px solid var(--primary);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border-left: 6px solid var(--primary);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
         }
+
         .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
+
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
         }
-        .article-num {
-            font-weight: bold;
+
+        .art-id {
+            font-weight: 800;
             color: var(--primary);
-            font-size: 1.1em;
+            font-size: 1.2em;
         }
-        .category-tag {
-            background: #eee;
+
+        .badge {
+            font-size: 0.75em;
             padding: 4px 8px;
             border-radius: 12px;
-            font-size: 0.8em;
-            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+            background: #eee;
+            color: #555;
         }
+
+        /* Couleurs des badges par catégorie (dynamique via JS, ou CSS simple) */
+        .cat-politique { background: #e3f2fd; color: #1565c0; }
+        .cat-guerre { background: #ffebee; color: #c62828; }
+        .cat-famille { background: #f3e5f5; color: #7b1fa2; }
+        .cat-biens { background: #e8f5e9; color: #2e7d32; }
+        .cat-justice { background: #fff3e0; color: #ef6c00; }
+
         .content {
-            margin-bottom: 15px;
-            line-height: 1.5;
+            margin-bottom: 20px;
+            font-size: 1.05em;
+            color: #444;
         }
-        .fines {
-            margin-top: auto;
-            padding-top: 10px;
+
+        .footer-card {
+            background: #f8f9fa;
+            margin: -25px -25px -25px -25px;
+            padding: 15px 25px;
+            border-radius: 0 0 10px 10px;
             border-top: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: auto;
         }
-        .old-price {
-            font-size: 0.9em;
-            color: #7f8c8d;
+
+        .fine-box {
+            display: flex;
+            flex-direction: column;
         }
-        .new-price {
-            font-weight: bold;
-            color: var(--accent);
-            font-size: 1.1em;
+
+        .fine-label { font-size: 0.8em; color: #7f8c8d; }
+        .fine-original { font-weight: bold; color: #7f8c8d; text-decoration: line-through; font-size: 0.9em;}
+        .fine-converted { font-weight: 800; color: var(--accent); font-size: 1.3em; }
+
+        .keyword-highlight {
+            background-color: #fff3cd;
+            padding: 0 2px;
+            border-radius: 2px;
         }
-        .no-fine {
-            color: #27ae60;
-            font-style: italic;
-            font-size: 0.9em;
+
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; }
+            header h1 { font-size: 1.8em; }
         }
     </style>
 </head>
@@ -131,15 +195,16 @@
 
 <header>
     <h1>Kanoun Agouni N'Teselent (1892)</h1>
-    <p>Droit coutumier des Akbil numérisé et converti</p>
+    <p>Tribu des Akbil | Base de données juridique complète (249 Articles)</p>
+    <div style="font-size: 0.9em; margin-top: 10px; opacity: 0.8;">
+        Taux de conversion : 1 Réal = 1 250 DA | 1 Franc ≈ 500 DA
+    </div>
 </header>
 
-<div class="stats-panel" id="stats">
-    Chargement des statistiques...
-</div>
-
 <div class="controls">
-    <input type="text" id="searchInput" placeholder="Rechercher (ex: vol, femme, amin, guerre)...">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Rechercher (ex: vol, femme, eau, amin, fusil)...">
+    </div>
     <select id="categoryFilter">
         <option value="all">Toutes les catégories</option>
         <option value="Politique">Politique & Amin</option>
@@ -147,161 +212,466 @@
         <option value="Funérailles">Funérailles & Hospitalité</option>
         <option value="Guerre">Guerre & Défense</option>
         <option value="Civile">Discipline Civile & Corvées</option>
-        <option value="Biens">Biens, Dettes & Héritage</option>
+        <option value="Biens">Biens, Dettes & Propriété</option>
         <option value="Famille">Famille, Mariage & Femmes</option>
-        <option value="Justice">Justice & Violence</option>
+        <option value="Justice">Justice & Meurtres</option>
+        <option value="Violence">Violences & Armes</option>
+        <option value="Ordre">Ordre Public & Sécurité</option>
+        <option value="Mœurs">Mœurs & Adultère</option>
+        <option value="Vols">Vols & Larcins</option>
+        <option value="Dommages">Dommages & Agriculture</option>
     </select>
 </div>
 
-<div class="grid" id="resultsGrid">
-    </div>
+<div class="stats-bar" id="statsBar">Chargement...</div>
+
+<div class="grid" id="appGrid"></div>
 
 <script>
-    // Taux de conversion
-    const TAUX_REAL = 1250; 
-    const TAUX_FRANC = 500; // Déduit de l'Art 29 (5R = 12.5F -> 1R = 2.5F -> 1F = 1250/2.5 = 500)
+    // --- 1. CONFIGURATION & DONNÉES ---
+    const RATE_REAL = 1250;
+    const RATE_FRANC = 500; // Déduit (5R = 12.5F -> 1R=2.5F -> 1F=500DA)
 
-    // Base de données des articles (Extraits du texte fourni)
-    const db = [
-        { id: 1, cat: "Politique", text: "L'amin qui refuse de se conformer au kanoun.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 2, cat: "Politique", text: "Aider l'amin à violer le kanoun.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 5, cat: "Politique", text: "Démission de l'amin sans agrément.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 6, cat: "Politique", text: "Démission d'un dhamen ou deux temman.", fine: "1/2 réal", val: 0.5 * TAUX_REAL },
-        { id: 7, cat: "Politique", text: "Négligence de l'amin à faire payer les amendes.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 9, cat: "Timecheret", text: "Prendre sa part de viande avant autorisation.", fine: "2.50 fr", val: 2.5 * TAUX_FRANC },
-        { id: 10, cat: "Timecheret", text: "Prendre viande dans une autre ligne.", fine: "1 réal", val: 1 * TAUX_REAL },
-        { id: 11, cat: "Timecheret", text: "Enjamber le lieu de distribution.", fine: "30 centimes", val: 0.3 * TAUX_FRANC },
-        { id: 12, cat: "Timecheret", text: "Refus de prendre sa part (pour ne pas payer).", fine: "1/2 réal", val: 0.5 * TAUX_REAL },
-        { id: 14, cat: "Funérailles", text: "Refus d'hospitalité pour un enterrement.", fine: "1 réal", val: 1 * TAUX_REAL },
-        { id: 15, cat: "Funérailles", text: "Refus des hôtes du village après invitation.", fine: "1/4 réal", val: 0.25 * TAUX_REAL },
-        { id: 16, cat: "Funérailles", text: "Refus de recevoir à son tour.", fine: "1 réal", val: 1 * TAUX_REAL },
-        { id: 20, cat: "Funérailles", text: "Dhamen refusant de préparer le pain.", fine: "1/4 réal", val: 0.25 * TAUX_REAL },
-        { id: 21, cat: "Funérailles", text: "Mal nettoyer la farine du couscous (invités).", fine: "1 réal", val: 1 * TAUX_REAL },
-        { id: 22, cat: "Guerre", text: "Absence réunion Djemâat en temps de guerre.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 24, cat: "Guerre", text: "Refus de se battre (guerre décidée par Djemâat).", fine: "50 réaux", val: 50 * TAUX_REAL },
-        { id: 25, cat: "Politique", text: "Dhamen refusant d'accompagner l'amin.", fine: "1/4 réal", val: 0.25 * TAUX_REAL },
-        { id: 26, cat: "Guerre", text: "Refus de se battre après représailles (ousiga).", fine: "50 réaux", val: 50 * TAUX_REAL },
-        { id: 27, cat: "Civile", text: "Arrivée à la Djemâat après l'appel.", fine: "1/8 réal", val: 0.125 * TAUX_REAL },
-        { id: 28, cat: "Civile", text: "Absence à l'appel pour enterrement.", fine: "60 centimes", val: 0.6 * TAUX_FRANC },
-        { id: 29, cat: "Civile", text: "Inciter quelqu'un à quitter sa kharouba.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 30, cat: "Civile", text: "Absence corvée bois de construction.", fine: "1/4 réal", val: 0.25 * TAUX_REAL },
-        { id: 31, cat: "Civile", text: "Femme absente corvée d'eau (payé par l'homme).", fine: "1/8 réal", val: 0.125 * TAUX_REAL },
-        { id: 33, cat: "Biens", text: "Héritier refusant de livrer un legs.", fine: "Égale au legs", val: null },
-        { id: 38, cat: "Biens", text: "Réclamer une dette un jour interdit (fête, enterrement).", fine: "60 centimes", val: 0.6 * TAUX_FRANC },
-        { id: 39, cat: "Biens", text: "Réclamer dette à un étranger hôte du village.", fine: "2.50 fr", val: 2.5 * TAUX_FRANC },
-        { id: 40, cat: "Biens", text: "Réclamer dette la nuit ou en campagne.", fine: "60 centimes", val: 0.6 * TAUX_FRANC },
-        { id: 41, cat: "Biens", text: "Non paiement dette après 3 sommations (créancier étranger).", fine: "1 réal", val: 1 * TAUX_REAL },
-        { id: 42, cat: "Biens", text: "Dette envers étranger causant procès/bruit.", fine: "Égale à la dette", val: null },
-        { id: 43, cat: "Famille", text: "Sortir sans permission durant les 3 jours de deuil (mehlal).", fine: "60 centimes", val: 0.6 * TAUX_FRANC },
-        { id: 44, cat: "Famille", text: "Cris de joie pour mariage sans consentement parents.", fine: "30 francs", val: 30 * TAUX_FRANC },
-        { id: 45, cat: "Famille", text: "Laisser sa femme chez son père plus d'un an.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 46, cat: "Famille", text: "Vendre sa femme (tamenafeqt) qui a fui.", fine: "20 réaux", val: 20 * TAUX_REAL },
-        { id: 47, cat: "Famille", text: "Héberger femme en fuite sans l'expulser.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 48, cat: "Famille", text: "Priver une veuve de ses bijoux/vêtements.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 50, cat: "Famille", text: "Héritiers refusant jouissance viagère aux femmes.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 51, cat: "Biens", text: "Vente biens orphelin sans les notables.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 52, cat: "Biens", text: "Donner procuration à un étranger ou non-parent.", fine: "25 réaux", val: 25 * TAUX_REAL },
-        { id: 53, cat: "Civile", text: "Se dispenser d'un repas de fête obligatoire.", fine: "1.5 réal", val: 1.5 * TAUX_REAL },
-        { id: 55, cat: "Funérailles", text: "Si l'hôte va à la fontaine (manque de service).", fine: "1/8 réal", val: 0.125 * TAUX_REAL },
-        { id: 58, cat: "Biens", text: "Prêt à gros intérêts (Usure).", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 59, cat: "Biens", text: "Celui qui emprunte à usure.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 60, cat: "Biens", text: "Témoin d'un prêt usuraire.", fine: "2 réaux", val: 2 * TAUX_REAL },
-        { id: 61, cat: "Biens", text: "Ecrivain d'un prêt usuraire.", fine: "3 réaux", val: 3 * TAUX_REAL },
-        { id: 63, cat: "Famille", text: "Prendre part viande pour femme renvoyée > 1 an.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 64, cat: "Biens", text: "Échange réciproque de biens avec étranger.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 66, cat: "Biens", text: "Utiliser notables pour obtenir sursis dette.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 67, cat: "Civile", text: "Jeûne en secret pour éviter Djemâat.", fine: "1 réal", val: 1 * TAUX_REAL },
-        { id: 69, cat: "Biens", text: "Vente bien communal.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 70, cat: "Justice", text: "Refus (3 fois) d'aller en justice.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 71, cat: "Biens", text: "Vol d'essaim d'abeilles.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 74, cat: "Timecheret", text: "Changer prix enchères peau timecheret.", fine: "1/4 réal", val: 0.25 * TAUX_REAL },
-        { id: 76, cat: "Justice", text: "Témoigner pour un étranger contre un habitant (vol).", fine: "50 réaux", val: 50 * TAUX_REAL },
-        { id: 78, cat: "Justice", text: "Parricide/Fratricide pour héritage (destr. maison).", fine: "100 réaux", val: 100 * TAUX_REAL },
-        { id: 79, cat: "Guerre", text: "Faire tuer un habitant par l'ennemi (exil 3 ans).", fine: "100 réaux", val: 100 * TAUX_REAL },
-        { id: 82, cat: "Justice", text: "Homicide involontaire (non pour héritage).", fine: "12 réaux", val: 12 * TAUX_REAL },
-        { id: 87, cat: "Justice", text: "Tirer un coup de fusil contre une maison.", fine: "20 réaux", val: 20 * TAUX_REAL },
-        { id: 88, cat: "Justice", text: "Frapper avec sabre ou hachette.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 90, cat: "Justice", text: "Se rendre armé (fusil) à une rixe sans tirer.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 91, cat: "Justice", text: "Utiliser le fusil dans une rixe.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 92, cat: "Justice", text: "Frapper avec une massue.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 96, cat: "Justice", text: "Frapper avec bague à crochets (takhatem).", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 100, cat: "Justice", text: "Frapper la femme d'autrui.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 101, cat: "Justice", text: "Saisir quelqu'un au collet (burnous).", fine: "1/2 réal", val: 0.5 * TAUX_REAL },
-        { id: 102, cat: "Justice", text: "Violar Anaïa (paix) d'un tiers.", fine: "5 réaux", val: 5 * TAUX_REAL },
-        { id: 103, cat: "Justice", text: "Violar Anaïa de l'amin ou notables.", fine: "10 réaux", val: 10 * TAUX_REAL },
-        { id: 105, cat: "Justice", text: "Se battre avec l'amin.", fine: "2 réaux", val: 2 * TAUX_REAL },
-        { id: 109, cat: "Justice", text: "Provoquer quelqu'un à sortir en campagne.", fine: "1 réal", val: 1 * TAUX_REAL }
+    // Fonction utilitaire pour nettoyer les textes
+    const clean = (text) => text.trim();
+
+    // Base de données brute (Les 249 articles structurés)
+    const rawData = [
+        {id: 1, cat: "Politique", text: "L'amin qui refuserait de se conformer aux prescriptions du présent kanoun payerait 10 réaux d'amende et devrait se retirer."},
+        {id: 2, cat: "Politique", text: "Celui qui aiderait l'amin à violer le présent kanoun (que ce soit un dhamen ou autre) paie 10 réaux d'amende contre l'amin."},
+        {id: 3, cat: "Politique", text: "L'amin met en dépôt chez un Dhamen l'argent de la Djemâat. Il choisit lui-même ce dhamen."},
+        {id: 4, cat: "Politique", text: "L'amin donne un repas aux notables le jour de son entrée en fonctions et le jour de sa sortie."},
+        {id: 5, cat: "Politique", text: "Si l'amin donne sa démission sans l'agrément du village, il paie cinq réaux."},
+        {id: 6, cat: "Politique", text: "Si un dhamen ou deux temman donnent leur démission, ils paient 1/2 réal chacun, et l'amin ne se retire pas à cause de cette démission. Si trois temman donnent ensemble leur démission, l'amin doit se retirer."},
+        {id: 7, cat: "Politique", text: "Si l'amin néglige de faire payer des amendes dues au village, il paie une amende de 10 réaux."},
+        {id: 8, cat: "Politique", text: "Lorsqu'un amin cesse ses fonctions, l'argent de la communauté qui est entre ses mains est employé à une timecheret (partage de viande) à laquelle ont droit tous les habitants, petits ou grands."},
+        {id: 9, cat: "Timecheret", text: "Celui qui prend sa part de viande dans une timecheret, avant d'y être autorisé par l'amin, paie 2 francs 50 centimes d'amende, quand même le coupable serait un enfant."},
+        {id: 10, cat: "Timecheret", text: "Celui qui prend sa part de viande dans une ligne autre que celle qui lui est désignée paiera un réal et prendra sa part dans la ligne à lui désignée."},
+        {id: 11, cat: "Timecheret", text: "Celui qui enjambera par dessus l'endroit où se distribue la viande : 30 centimes."},
+        {id: 12, cat: "Timecheret", text: "Est puni de 1/2 réal d'amende, celui qui refuse de prendre sa part de viande (pour ne pas donner d'argent) dans les timecheret faites à l'occasion de la fête de l'Achoura, 27 du mois de redjeb, 27 du mois de châban, à l'occasion d'un enterrement ou le jour où l'on commence les labours."},
+        {id: 13, cat: "Funérailles", text: "Le nombre des plats de couscous fournis par le village pour un enterrement: 7 pour un homme, 3 pour un enfant >1an, 3 pour une femme, 3 pour un marabout. Rien <1an."},
+        {id: 14, cat: "Funérailles", text: "Celui qui refuse de donner l'hospitalité à des gens venus pour un enterrement paie un réal ; il est, en outre, contraint à donner l'hospitalité."},
+        {id: 15, cat: "Funérailles", text: "Celui qui refuse des hôtes du village, après y avoir été invité par l'amin, paie un quart de réal."},
+        {id: 16, cat: "Funérailles", text: "Les habitants reçoivent les hôtes du village à tour de rôle. Celui qui refuse de recevoir, quand c'est son tour, paie un réal d'amende."},
+        {id: 17, cat: "Funérailles", text: "L'amin donne, sur les fonds de la Djemâat, à la maison qui reçoit : la viande, la farine, le beurre. Elle a pour profit les issues, foie, cœur, etc..."},
+        {id: 18, cat: "Funérailles", text: "L'amin et les temman ont droit chacun à un morceau de viande, lorsqu'on tue un animal pour des hôtes."},
+        {id: 19, cat: "Funérailles", text: "La peau, les pieds, la tête et la viande, en excédent, sont vendus au profit de la Djemâat."},
+        {id: 20, cat: "Funérailles", text: "Le dhamen qui refuserait de préparer du pain pour les hôtes paierait un quart de réal."},
+        {id: 21, cat: "Funérailles", text: "Celui qui nettoiera avec trop peu de soin la farine du couscous offert aux étrangers qui viennent à un enterrement paiera un réal."},
+        {id: 22, cat: "Guerre", text: "Celui qui, en temps de guerre, ne se rend pas à la réunion de la Djemâat : cinq réaux."},
+        {id: 23, cat: "Guerre", text: "En temps de guerre, les temman montent la garde comme les autres habitants."},
+        {id: 24, cat: "Guerre", text: "Lorsque la Djemâat a décidé qu'on ferait la guerre à un autre village, l'habitant qui refuserait de se battre paierait 50 réaux."},
+        {id: 25, cat: "Guerre", text: "Le dhamen qui refuse d'accompagner l'amin pour examiner une affaire concernant le village : un quart de réal."},
+        {id: 26, cat: "Guerre", text: "Lorsqu'un individu a exercé de justes représailles (ousiga) et que la guerre s'ensuit, celui qui refuserait de se battre paierait 50 réaux."},
+        {id: 27, cat: "Civile", text: "Celui qui arrive à la Djemâat après l'appel : un huitième de réal."},
+        {id: 28, cat: "Civile", text: "Celui qui ne se rend pas à l'appel de l'amin, quand il convoque le village pour un enterrement, paie 60 centimes."},
+        {id: 29, cat: "Civile", text: "Celui qui engage quelqu'un à quitter sa kharouba pour entrer dans une autre : cinq réaux ou 12 fr. 50."},
+        {id: 30, cat: "Civile", text: "Celui qui ne va pas à une corvée de bois de construction paie un quart de réal."},
+        {id: 31, cat: "Civile", text: "Si une femme s'abstient d'aller à une corvée d'eau commandée par l'amin, elle paie un huitième de réal (payé par l'homme)."},
+        {id: 32, cat: "Biens", text: "Celui qui aura donné à la Djemâat un animal pour une timecheret n'aura pour lui que la peau, sauf conditions contraires."},
+        {id: 33, cat: "Biens", text: "Si l'héritier d'un homme qui a fait un legs à la Djemâat refuse de livrer le legs, il paie une amende égale au legs."},
+        {id: 34, cat: "Biens", text: "Si un homme lègue au village le tiers de ses biens, le village n'accepte que cinquante réaux."},
+        {id: 35, cat: "Biens", text: "Si un homme a donné par testament une somme pour un repas, ses héritiers sont tenus d'exécuter ce testament."},
+        {id: 36, cat: "Biens", text: "Si l'homme qui a été volé ne peut se faire payer la réparation, les notables la feront payer."},
+        {id: 37, cat: "Politique", text: "Celui qui n'obéit pas à un ordre de l'amin paiera l'amende qui lui sera imposée par l'amin."},
+        {id: 38, cat: "Biens", text: "Réclamer une dette le jour de la réunion, timecheret, enterrement ou corvée : 60 centimes."},
+        {id: 39, cat: "Biens", text: "Réclamer une dette contractée hors du village à un étranger hôte d'un habitant : 2 fr. 50."},
+        {id: 40, cat: "Biens", text: "Réclamer une dette ou demander le serment dans la campagne ou pendant la nuit : 60 centimes."},
+        {id: 41, cat: "Biens", text: "Dette impayée après 3 sommations : 1 réal (créancier étranger) ou 1/4 réal (créancier du village)."},
+        {id: 42, cat: "Biens", text: "Dette envers étranger occasionnant un procès : amende égale à la dette. Aider le débiteur récalcitrant : 5 réaux."},
+        {id: 43, cat: "Famille", text: "Sortir sans permission du village dans les 3 jours (mehlal) suivant la mort d'un habitant : 60 centimes (1/4 de réal)."},
+        {id: 44, cat: "Famille", text: "Pousser des cris de joie pour mariage sans consentement des parents de la femme : 30 francs."},
+        {id: 45, cat: "Famille", text: "Laisser sa femme chez son père pendant une année entière : 10 réaux."},
+        {id: 46, cat: "Famille", text: "Vendre sa femme (tamenafeqt) qui a quitté la maison et ne veut pas revenir : 50 francs (20 réaux)."},
+        {id: 47, cat: "Famille", text: "Ne pas expulser une femme mariée qui se réfugie chez soi (si non parent) : 10 réaux."},
+        {id: 48, cat: "Famille", text: "Priver une veuve de ses bijoux/vêtements donnés par le mari : 5 réaux."},
+        {id: 49, cat: "Famille", text: "Droits des femmes parentes sur l'habitation et jouissance viagère. Décès d'une de ces femmes : 10 réaux de çedaka."},
+        {id: 50, cat: "Famille", text: "Héritiers refusant d'exécuter l'article 49 : 5 réaux d'amende."},
+        {id: 51, cat: "Biens", text: "Vendre biens d'un orphelin sans consentement des notables : 10 réaux et nullité."},
+        {id: 52, cat: "Biens", text: "Donner procuration à un étranger ou non-parent : 25 réaux."},
+        {id: 53, cat: "Civile", text: "Se dispenser d'un repas de fête obligatoire : un réal et demi."},
+        {id: 54, cat: "Funérailles", text: "Couscous pour enterrement enfant <1an : rien. >1an : 3 plats. Majeur : comme homme."},
+        {id: 55, cat: "Funérailles", text: "Si l'hôte d'un individu va à la fontaine (manque de service) : un huitième de réal."},
+        {id: 56, cat: "Biens", text: "Si un habitant est dépouillé hors du village par créancier d'un autre habitant, ce dernier paie immédiatement."},
+        {id: 57, cat: "Biens", text: "Si un individu est retenu en otage ailleurs pour un autre, le coupable doit aller se livrer."},
+        {id: 58, cat: "Biens", text: "Prêter à gros intérêts (usure) : 10 réaux d'amende et perte des intérêts."},
+        {id: 59, cat: "Biens", text: "L'emprunteur à usure : 5 réaux."},
+        {id: 60, cat: "Biens", text: "Témoin d'un prêt usuraire : 2 réaux."},
+        {id: 61, cat: "Biens", text: "Celui qui a écrit pour constater le prêt usuraire : 3 réaux."},
+        {id: 62, cat: "Biens", text: "Intermédiaire prêt usuraire : un quart de réal."},
+        {id: 63, cat: "Famille", text: "Renvoyer sa femme et prendre sa part de viande >1 an sans la reprendre : 5 réaux."},
+        {id: 64, cat: "Biens", text: "Convention réciproque de biens (au dernier vivant) avec étranger à la famille : 5 réaux."},
+        {id: 65, cat: "Guerre", text: "Quitter le village sans permission en temps de guerre : amende fixée par l'amin (saisie des biens)."},
+        {id: 66, cat: "Biens", text: "Faire intervenir notables pour sursis dette (achat à terme) : 5 réaux."},
+        {id: 67, cat: "Civile", text: "Jeune homme jeûnant en secret (pour éviter Djemâat) : 1 réal s'il ne jeûne pas publiquement l'année suivante."},
+        {id: 68, cat: "Famille", text: "Amende femme mariée : payée par le mari. Si chez ses parents : par les parents."},
+        {id: 69, cat: "Biens", text: "Vente de bien communal : 10 réaux et nullité."},
+        {id: 70, cat: "Justice", text: "Refuser 3 fois d'aller en justice : 5 réaux (jugement d'office)."},
+        {id: 71, cat: "Biens", text: "Prendre un essaim d'abeilles sur arbre d'autrui : 5 réaux + valeur."},
+        {id: 72, cat: "Biens", text: "Si voisin engage faîte/pannes dans son mur, on ne peut plus lui faire enlever."},
+        {id: 73, cat: "Civile", text: "Étranger travaillant au village soumis au kanoun."},
+        {id: 74, cat: "Timecheret", text: "Vouloir changer prix peau timecheret après enchères : un quart de réal."},
+        {id: 75, cat: "Civile", text: "Étranger fuyant pour ne pas payer amende : l'hébergeur paie."},
+        {id: 76, cat: "Justice", text: "Témoigner pour étranger accusant un habitant de vol : 50 réaux."},
+        {id: 77, cat: "Justice", text: "Témoignage d'étranger contre habitant non valable."},
+        {id: 78, cat: "Justice", text: "Tuer son parent pour hériter : 100 réaux, destruction maison, bétail égorgé, déshérité."},
+        {id: 79, cat: "Guerre", text: "Faire tuer un habitant par l'ennemi : 100 réaux, destruction maison, exil 3 ans."},
+        {id: 80, cat: "Guerre", text: "Faire enlever le troupeau d'un autre par l'ennemi : idem art 79."},
+        {id: 81, cat: "Justice", text: "Complicité crime/délit : même amende que l'auteur."},
+        {id: 82, cat: "Justice", text: "Tuer un parent (non pour hériter) : 12 réaux."},
+        {id: 83, cat: "Justice", text: "Si deux parents s'entre-tuent : 10 réaux chacun (payé par héritiers)."},
+        {id: 84, cat: "Justice", text: "Pas de punition pour vengeance dette de sang."},
+        {id: 85, cat: "Justice", text: "Tuer l'amant de sa femme/sœur/fille : aucune amende."},
+        {id: 86, cat: "Justice", text: "Tuer un voleur : aucune amende."},
+        {id: 87, cat: "Violence", text: "Tirer coup de fusil contre une maison : 20 réaux. Riposte : 40 réaux."},
+        {id: 88, cat: "Violence", text: "Frapper avec sabre ou hachette : 10 réaux."},
+        {id: 89, cat: "Violence", text: "Se présenter à la Djemâat avec sabre (sans s'en servir) : 2 réaux."},
+        {id: 90, cat: "Violence", text: "Se rendre armé de fusil à une rixe (sans tirer) : 5 réaux."},
+        {id: 91, cat: "Violence", text: "Se servir du fusil dans une rixe : 10 réaux."},
+        {id: 92, cat: "Violence", text: "S'armer d'une massue : 2 réaux. Si frappe : 5 réaux."},
+        {id: 93, cat: "Violence", text: "Se battre avec un hôte de la Djemâat : 5 réaux (sauf tort de l'hôte)."},
+        {id: 94, cat: "Violence", text: "Se battre avec l'hôte d'un particulier : 5 réaux."},
+        {id: 95, cat: "Violence", text: "Geste de frapper avec sabot/pierre : 1/2 réal. Frapper : 5 réaux."},
+        {id: 96, cat: "Violence", text: "Frapper avec bague à crochets (takhatem) : 5 réaux."},
+        {id: 97, cat: "Violence", text: "Porter une bague à crochets sans s'en servir : 1/2 réal."},
+        {id: 98, cat: "Violence", text: "Bataille avec étranger : amende si réciprocité du village adverse."},
+        {id: 99, cat: "Justice", text: "Représailles à tort : 5 réaux et restitution. À raison : rien."},
+        {id: 100, cat: "Violence", text: "Frapper la femme d'autrui : 10 réaux. Vengeance du mari : 20 réaux."},
+        {id: 101, cat: "Violence", text: "Saisir au collet (burnous) : 1/2 réal."},
+        {id: 102, cat: "Ordre", text: "Violer une Anaïa (paix) interposée entre combattants : 5 réaux."},
+        {id: 103, cat: "Ordre", text: "Violer l'Anaïa de l'amin ou notables : 10 réaux."},
+        {id: 104, cat: "Ordre", text: "Enfants se battant avec village voisin : 1/8 réal (si réciprocité)."},
+        {id: 105, cat: "Violence", text: "Se battre avec l'amin : 2 réaux (l'amin ne paie rien)."},
+        {id: 106, cat: "Violence", text: "Dhamen se battant pour une amende : ne paie rien. Adversaire : 5 réaux."},
+        {id: 107, cat: "Ordre", text: "Relancer la lutte après intervention des notables : 5 réaux."},
+        {id: 108, cat: "Ordre", text: "Témoin disant « Laissez-les se battre » : 1/2 réal."},
+        {id: 109, cat: "Violence", text: "Provoquer à sortir en campagne pour se battre : 1 réal."},
+        {id: 110, cat: "Ordre", text: "Ruse sur le marché pour susciter désordre : 1/2 réal."},
+        {id: 111, cat: "Violence", text: "Suivre quelqu'un en campagne pour se battre : 1/2 réal (si pas bataille), 5 réaux (si bataille)."},
+        {id: 112, cat: "Violence", text: "Enfants se battant entre eux : 1/8 réal chacun."},
+        {id: 113, cat: "Violence", text: "Aider un étranger contre un habitant hors du village : 2 réaux."},
+        {id: 114, cat: "Violence", text: "Frapper le premier : 5 réaux. Simultané : 2.5 réaux chacun."},
+        {id: 115, cat: "Violence", text: "Femme frappant la première : 2.5 réaux. Simultané : 1.25 réal."},
+        {id: 116, cat: "Violence", text: "Entrer chez autrui et frapper : 5 réaux."},
+        {id: 117, cat: "Violence", text: "Bataille de nuit (coucher au lever du soleil) : 5 réaux."},
+        {id: 118, cat: "Violence", text: "Se mêler d'une bataille la nuit pour aider : 10 réaux."},
+        {id: 119, cat: "Mœurs", text: "Adultère en temps de guerre : 100 réaux (250 fr) + exil 1 an."},
+        {id: 120, cat: "Mœurs", text: "Adultère en temps de paix : 50 réaux (125 fr) + exil 1 an."},
+        {id: 121, cat: "Mœurs", text: "Soutenir l'adultère : 50 réaux."},
+        {id: 122, cat: "Mœurs", text: "Vengeance par adultère réciproque : 100 réaux."},
+        {id: 123, cat: "Mœurs", text: "Enfants (sodomie/fornication) : 3 réaux chacun."},
+        {id: 124, cat: "Mœurs", text: "Enfant victime d'attentat prenant revanche : 6 réaux."},
+        {id: 125, cat: "Mœurs", text: "Fausses accusations d'adultère (calomnie) : 50 réaux."},
+        {id: 126, cat: "Justice", text: "Pauvre mis à l'amende : doit payer même s'il ne lui reste rien."},
+        {id: 127, cat: "Justice", text: "Indigent total : paie sur son travail futur."},
+        {id: 128, cat: "Justice", text: "Fuir le village pour éviter amende : doit payer au retour. Complice évasion biens : 5 réaux."},
+        {id: 129, cat: "Ordre", text: "Se laver nu fontaine (jour) : 60 centimes (1/4 réal)."},
+        {id: 130, cat: "Ordre", text: "Femme se lavant nue fontaine haut : 60 centimes."},
+        {id: 131, cat: "Ordre", text: "Homme entrant fontaine pendant présence femmes (et vice versa) : 1/4 réal."},
+        {id: 132, cat: "Ordre", text: "Femme lavant vêtements fontaine : 30 centimes."},
+        {id: 133, cat: "Ordre", text: "Femmes doivent suivre chemin bas (aller) et haut (retour)."},
+        {id: 134, cat: "Ordre", text: "Propos inconvenants à la fontaine : 1 fr. 25."},
+        {id: 135, cat: "Dommages", text: "Détourner eau villages/jardins : 1/4 réal."},
+        {id: 136, cat: "Ordre", text: "Laver vêtements fontaine d'en haut : 5 réaux."},
+        {id: 137, cat: "Dommages", text: "Femme cassant cruche d'une autre (intention) : 1/2 réal amende + 1/4 réparation."},
+        {id: 138, cat: "Dommages", text: "Homme cassant cruche femme : 1 réal + valeur."},
+        {id: 139, cat: "Violence", text: "Femme insultant homme : 1 réal."},
+        {id: 140, cat: "Violence", text: "Homme insultant femme : 2 réaux."},
+        {id: 141, cat: "Dommages", text: "Mutiler animal (jarret, queue, oreille) : 5 réaux."},
+        {id: 142, cat: "Dommages", text: "Si l'animal meurt de mutilation : rendre valeur."},
+        {id: 143, cat: "Dommages", text: "Si l'animal survit : 10 réaux réparation."},
+        {id: 144, cat: "Dommages", text: "Casser tuiles en campagne : 62.50 fr amende + 62.50 réparation."},
+        {id: 145, cat: "Dommages", text: "Détruire chose d'autrui avant justice : 12.50 fr amende."},
+        {id: 146, cat: "Ordre", text: "Chanter près maison autrui/mosquée : 1/4 réal."},
+        {id: 147, cat: "Ordre", text: "L'homme de garde peut chanter."},
+        {id: 148, cat: "Ordre", text: "Accuser l'amin de vol (sans preuve) : 1 fr. 25."},
+        {id: 149, cat: "Ordre", text: "Ordures (Tadekkart...): 1/8 réal."},
+        {id: 150, cat: "Ordre", text: "Ordures (Tâassart...): 1/8 réal."},
+        {id: 151, cat: "Ordre", text: "Uriner près mosquée : 1/8 réal."},
+        {id: 152, cat: "Violence", text: "Reprocher défauts/vices : 5 réaux."},
+        {id: 153, cat: "Justice", text: "Prendre parti pour un coupable : 5 réaux."},
+        {id: 154, cat: "Ordre", text: "Passer cour marabouts (Oulad Sidi Çeddik...) : 1/4 réal."},
+        {id: 155, cat: "Ordre", text: "Sortir par petite porte arrière (Takherradjith) : 1/4 réal."},
+        {id: 156, cat: "Guerre", text: "Faire passage dans haie village (guerre) : 1 réal."},
+        {id: 157, cat: "Mœurs", text: "Entremetteuse (proxénète) : 10 réaux. Si tuée par mari : pas d'amende."},
+        {id: 158, cat: "Mœurs", text: "Frère introduisant gens mauvaise vie : avertissement, puis droit de tuer sans amende."},
+        {id: 159, cat: "Justice", text: "Faux témoignage prouvé : 10 réaux."},
+        {id: 160, cat: "Ordre", text: "Courir seul ou course vitesse rues : 1/8 réal."},
+        {id: 161, cat: "Ordre", text: "Introduire étranger pour tuer/voler : 100 réaux."},
+        {id: 162, cat: "Mœurs", text: "Hôte commettant attentat pudeur : l'hébergeant paie 50 réaux."},
+        {id: 163, cat: "Violence", text: "Insulte raciste/religieuse (Juif, madjousi, bâtard) : 1/4 réal."},
+        {id: 164, cat: "Violence", text: "Mineur insultant homme : 1/8 réal."},
+        {id: 165, cat: "Justice", text: "Revenir sur son témoignage : 5 réaux."},
+        {id: 166, cat: "Ordre", text: "Mettre zizanie (nemina) : 5 réaux."},
+        {id: 167, cat: "Ordre", text: "Accuser faussement de zizanie : 1/4 réal."},
+        {id: 168, cat: "Ordre", text: "S'emporter contre l'iman : 1 réal. Le frapper : 5 réaux."},
+        {id: 169, cat: "Justice", text: "Se faire justice soi-même : double de l'amende du délit."},
+        {id: 170, cat: "Justice", text: "Faire condamner par faux témoignage puis se rétracter : paie l'amende de la victime."},
+        {id: 171, cat: "Ordre", text: "Parole inconvenante à la Djemâat : 1/4 réal."},
+        {id: 172, cat: "Violence", text: "Traiter de libertin : 1/8 réal."},
+        {id: 173, cat: "Guerre", text: "Interposer Anaïa contre justes représailles : 5 réaux (Anaïa ignorée)."},
+        {id: 174, cat: "Violence", text: "Violenter femme village voisin/hôte : comme femme du village."},
+        {id: 175, cat: "Ordre", text: "Fumer : 1/2 réal."},
+        {id: 176, cat: "Ordre", text: "Priser tabac en Djemâat : 1 réal."},
+        {id: 177, cat: "Ordre", text: "Piler tabac en Djemâat : 1/8 réal."},
+        {id: 178, cat: "Ordre", text: "Hôte fumant rue/Djemâat : 1/8 réal."},
+        {id: 179, cat: "Ordre", text: "Se tenir corps de garde haut jour soleil : 1/8 réal (sauf enfants)."},
+        {id: 180, cat: "Ordre", text: "Répandre eau rue : 1/8 réal (sauf ablutions mosquée)."},
+        {id: 181, cat: "Guerre", text: "Passer à l'ennemi : 50 réaux (premier coupable)."},
+        {id: 182, cat: "Vols", text: "Vol guerre : 250 fr amende + 125 fr réparation."},
+        {id: 183, cat: "Vols", text: "Vol paix : 50 réaux amende + 25 réaux réparation + restitution."},
+        {id: 184, cat: "Vols", text: "Soutenir un voleur : 50 réaux."},
+        {id: 185, cat: "Vols", text: "Victime rendant partie réparation au voleur : 50 réaux."},
+        {id: 186, cat: "Vols", text: "Vol de grand chemin : 50 réaux."},
+        {id: 187, cat: "Vols", text: "Recel (achat) objet volé : 12.50 fr."},
+        {id: 188, cat: "Vols", text: "Vol viande timecheret : 12.50 fr + valeur."},
+        {id: 189, cat: "Vols", text: "Receler objet volé : 125 fr."},
+        {id: 190, cat: "Vols", text: "Vol intérieur village : 50 réaux amende + 25 réparation."},
+        {id: 191, cat: "Vols", text: "Victime rendant réparation voleur : 25 réaux."},
+        {id: 192, cat: "Vols", text: "Vol blé en tas : 50 réaux amende + 25 réparation."},
+        {id: 193, cat: "Vols", text: "Vol figues/olives sur claies : 50 réaux amende + 25 réparation."},
+        {id: 194, cat: "Vols", text: "Vol ceinture/vêtement faible valeur : 10 réaux amende + 10 réparation."},
+        {id: 195, cat: "Vols", text: "Vol abeilles dans cour : 10 réaux amende + 10 réparation."},
+        {id: 196, cat: "Vols", text: "Vol récoltes (figues/olives/glands/blé) campagne : 10 réaux."},
+        {id: 197, cat: "Vols", text: "Vol légumes jardin (citrouilles...) : 10 réaux amende + 5 réparation."},
+        {id: 198, cat: "Vols", text: "Vol fèves/pois jardin : 10 réaux amende + 5 réparation."},
+        {id: 199, cat: "Vols", text: "Vol fruits (noix, raisins...) : 10 réaux amende + 5 réparation."},
+        {id: 200, cat: "Vols", text: "Vol figues fraîches : 4 réaux amende + 4 réparation."},
+        {id: 201, cat: "Vols", text: "Vol bois construction intérieur : 6 réaux amende + 2 réparation."},
+        {id: 202, cat: "Vols", text: "Vol poule (et la manger) : 50 réaux (acte déshonorant)."},
+        {id: 203, cat: "Vols", text: "Vol linge séchoir : 10 réaux amende + 5 réparation."},
+        {id: 204, cat: "Vols", text: "Vol outil (soc/pioche) campagne : 5 réaux amende + 2 réparation."},
+        {id: 205, cat: "Vols", text: "Vol d'un hôte : puni comme vol d'habitant."},
+        {id: 206, cat: "Dommages", text: "Arracher arbre fruitier : 5 réaux amende + 5 réparation."},
+        {id: 207, cat: "Vols", text: "Escroquerie par ruse (faux envoyé) : 5 réaux + restitution."},
+        {id: 208, cat: "Mœurs", text: "Exhibitionnisme ou lever vêtements autrui : 60 centimes."},
+        {id: 209, cat: "Dommages", text: "Monter sur maison autrui sans motif : 4 réaux + dommage."},
+        {id: 210, cat: "Dommages", text: "Pâturage tar'ezzouth : 1/8 réal."},
+        {id: 211, cat: "Dommages", text: "Pâturage jardin artichauts : 1/8 réal."},
+        {id: 212, cat: "Dommages", text: "Arracher haie : 1/4 réal."},
+        {id: 213, cat: "Biens", text: "Chercher paille nuit (même la sienne) : 1/4 réal."},
+        {id: 214, cat: "Vols", text: "Vol feuilles frênes (jour) : 1R+1R. Nuit : 5 réaux."},
+        {id: 215, cat: "Vols", text: "Vol de paille : 20 réaux amende + 10 réparation."},
+        {id: 216, cat: "Biens", text: "Détournement de dépôt : 10 réaux + valeur."},
+        {id: 217, cat: "Biens", text: "Détournement dépôt par parent/ami : 10 réaux."},
+        {id: 218, cat: "Ordre", text: "Répandre cendre rues : 1/8 réal."},
+        {id: 219, cat: "Dommages", text: "Lancer pierre sur tuiles : 5 réaux (majeur), 2 réaux (mineur)."},
+        {id: 220, cat: "Dommages", text: "Démolition partielle maison/tuiles : 50 réaux amende + 25 réparation."},
+        {id: 221, cat: "Vols", text: "Vol bois brûler bûcher : 2 réaux amende + 2 réparation."},
+        {id: 222, cat: "Dommages", text: "Arracher montant treille : 2 réaux amende + 2 réparation."},
+        {id: 223, cat: "Dommages", text: "Charmer (couper) arbre : 50 réaux amende + 25 réparation."},
+        {id: 224, cat: "Dommages", text: "Arracher légumes jardin : 10 réaux amende + 10 réparation."},
+        {id: 225, cat: "Dommages", text: "Incendie volontaire (paille/blé) : 50 réaux amende + 25 réparation."},
+        {id: 226, cat: "Dommages", text: "Couper branches oliviers mosquée : 1 réal."},
+        {id: 227, cat: "Dommages", text: "Élaguer oliviers mosquée (sans dommage) : 1/8 réal."},
+        {id: 228, cat: "Dommages", text: "Entraves trop larges bête communal : 1/8 réal."},
+        {id: 229, cat: "Dommages", text: "Pâturage cimetière neuf : 1/4 réal."},
+        {id: 230, cat: "Dommages", text: "Prendre figues pour bétail : 1 réal."},
+        {id: 231, cat: "Biens", text: "Enlever borne bornage avant Djemâa : 5 réaux."},
+        {id: 232, cat: "Dommages", text: "Sabotage moulin (incendie/bris) : 10 réaux amende + 10 réparation."},
+        {id: 233, cat: "Dommages", text: "Entailler olivier : 1/4 réal."},
+        {id: 234, cat: "Dommages", text: "Enlever bois haie : 1/4 réal."},
+        {id: 235, cat: "Dommages", text: "Arracher tuteur figuier : 1/8 réal."},
+        {id: 236, cat: "Politique", text: "Parole inconvenante à l'amin : 1/2 réal."},
+        {id: 237, cat: "Politique", text: "Parole inconvenante à un dhamen : 1/4 réal."},
+        {id: 238, cat: "Ordre", text: "Femme jetant balayures rue : 1/8 réal."},
+        {id: 239, cat: "Dommages", text: "Moutons dans vergers automne : 1/4 réal."},
+        {id: 240, cat: "Dommages", text: "Mulet dans verger figues : 1/4 réal."},
+        {id: 241, cat: "Dommages", text: "Pâturage terrain autrui : 1/8 réal."},
+        {id: 242, cat: "Mœurs", text: "Bestialité prouvée : 5 réaux."},
+        {id: 243, cat: "Dommages", text: "Faire boire animaux avant tour : 1/4 réal."},
+        {id: 244, cat: "Dommages", text: "Dégâts propriété communale : 1 réal."},
+        {id: 245, cat: "Dommages", text: "Rétention abusive argent réparation pâture : 1.25 réal."},
+        {id: 246, cat: "Ordre", text: "Stationner/ordures fontaine : 1/8 réal."},
+        {id: 247, cat: "Violence", text: "Monter sur toit pour lapider pendant rixe : 10 réaux."},
+        {id: 248, cat: "Dommages", text: "Passer jardin potager autrui : 1/2 réal."},
+        {id: 249, cat: "Guerre", text: "Refus de guerre pour Anaïa violée : 50 réaux."}
     ];
 
-    const grid = document.getElementById('resultsGrid');
-    const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const statsPanel = document.getElementById('stats');
+    // --- 2. LOGIQUE DE CALCUL ---
+    function extractAndConvertFine(text) {
+        // Regex pour capturer les montants
+        const regexReal = /(\d+(?:[\.,]\d+)?)\s*réau?x?/i;
+        const regexFranc = /(\d+(?:[\.,]\d+)?)\s*francs?/i;
+        const regexCentime = /(\d+)\s*centimes?/i;
+        // Cas speciaux fractions textuelles
+        const regexHalfReal = /(un)?\s*demi[- ]réal/i;
+        const regexQuarterReal = /(un)?\s*quart\s*de\s*réal/i;
+        const regexEighthReal = /(un)?\s*huiti[èe]me\s*de\s*réal/i;
+        const regexRealDemi = /un\s*réal\s*et\s*(un)?\s*demi/i;
+        const regexRealQuart = /un\s*réal\s*et\s*un\s*quart/i;
 
-    function formatMoney(amount) {
-        if (amount === null) return "Confiscation / Variable";
-        return new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD' }).format(amount);
+        let totalDA = 0;
+        let originalStr = "";
+        let found = false;
+
+        // Détection 1: "Un réal et demi"
+        if(regexRealDemi.test(text)) {
+            totalDA = 1.5 * RATE_REAL;
+            originalStr = "1 réal et demi";
+            found = true;
+        }
+        else if(regexRealQuart.test(text)) {
+            totalDA = 1.25 * RATE_REAL;
+            originalStr = "1 réal et quart";
+            found = true;
+        }
+        // Détection 2: Fractions de Real
+        else if (regexHalfReal.test(text) || text.includes("1/2 réal")) {
+            totalDA = 0.5 * RATE_REAL;
+            originalStr = "1/2 Réal";
+            found = true;
+        } else if (regexQuarterReal.test(text) || text.includes("1/4 de réal") || text.includes("1/4 réal")) {
+            totalDA = 0.25 * RATE_REAL;
+            originalStr = "1/4 Réal";
+            found = true;
+        } else if (regexEighthReal.test(text) || text.includes("1/8 de réal") || text.includes("1/8 réal")) {
+            totalDA = 0.125 * RATE_REAL;
+            originalStr = "1/8 Réal";
+            found = true;
+        }
+        // Détection 3: X Réaux
+        else if (text.match(regexReal)) {
+            const match = text.match(regexReal);
+            const val = parseFloat(match[1].replace(',', '.'));
+            totalDA = val * RATE_REAL;
+            originalStr = match[0];
+            found = true;
+        }
+        // Détection 4: Francs (priorité basse si Real existe déjà, mais on additionne si le texte est complexe)
+        else if (text.match(regexFranc)) {
+            const match = text.match(regexFranc);
+            const val = parseFloat(match[1].replace(',', '.'));
+            totalDA = val * RATE_FRANC;
+            originalStr = match[0];
+            found = true;
+        }
+        // Détection 5: Centimes
+        else if (text.match(regexCentime)) {
+            const match = text.match(regexCentime);
+            const val = parseInt(match[1]);
+            // 100 centimes = 1 Franc = 500 DA -> 1 centime = 5 DA
+            totalDA = val * (RATE_FRANC / 100);
+            originalStr = match[0];
+            found = true;
+        }
+
+        return found ? { da: Math.round(totalDA), original: originalStr } : null;
     }
 
-    function renderCards(articles) {
+    // --- 3. AFFICHAGE ---
+    const grid = document.getElementById('appGrid');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statsBar = document.getElementById('statsBar');
+
+    function formatMoney(amount) {
+        return new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD', maximumFractionDigits: 0 }).format(amount);
+    }
+
+    function render(articles) {
         grid.innerHTML = '';
+        let totalFines = 0;
+        let countFines = 0;
+
         if (articles.length === 0) {
-            grid.innerHTML = '<p style="text-align:center; width:100%;">Aucun article trouvé.</p>';
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#888;">Aucun article ne correspond à votre recherche.</div>';
+            statsBar.innerHTML = "0 Article";
             return;
         }
 
         articles.forEach(art => {
+            const fineData = extractAndConvertFine(art.text);
             const card = document.createElement('div');
             card.className = 'card';
+            
+            // Highlight keywords in text
+            let displayText = art.text;
+            if (searchInput.value.length > 2) {
+                const regex = new RegExp(`(${searchInput.value})`, 'gi');
+                displayText = displayText.replace(regex, '<span class="keyword-highlight">$1</span>');
+            }
+
+            // Déterminer la classe de catégorie pour la couleur
+            let catClass = 'badge';
+            if(art.cat === 'Politique') catClass += ' cat-politique';
+            if(art.cat === 'Guerre') catClass += ' cat-guerre';
+            if(art.cat === 'Famille') catClass += ' cat-famille';
+            if(art.cat === 'Biens') catClass += ' cat-biens';
+            if(art.cat.includes('Justice') || art.cat.includes('Violence')) catClass += ' cat-justice';
+
+            let fineHTML = '';
+            if (fineData) {
+                fineHTML = `
+                    <div class="footer-card">
+                        <div class="fine-box">
+                            <span class="fine-label">Amende 1892</span>
+                            <span class="fine-original">${fineData.original}</span>
+                        </div>
+                        <div class="fine-box" style="text-align:right;">
+                            <span class="fine-label">Équivalent Aujourd'hui</span>
+                            <span class="fine-converted">${formatMoney(fineData.da)}</span>
+                        </div>
+                    </div>
+                `;
+                totalFines += fineData.da;
+                countFines++;
+            } else {
+                fineHTML = `
+                    <div class="footer-card" style="justify-content:center;">
+                        <span style="color:#27ae60; font-style:italic; font-weight:bold;">Pas d'amende chiffrée / Variable</span>
+                    </div>
+                `;
+            }
+
             card.innerHTML = `
                 <div>
                     <div class="card-header">
-                        <span class="article-num">Article ${art.id}</span>
-                        <span class="category-tag">${art.cat}</span>
+                        <span class="art-id">#${art.id}</span>
+                        <span class="${catClass}">${art.cat}</span>
                     </div>
-                    <p class="content">${art.text}</p>
+                    <p class="content">${displayText}</p>
                 </div>
-                <div class="fines">
-                    <span class="old-price">1892: ${art.fine}</span>
-                    ${art.val !== 0 ? `<span class="new-price">${formatMoney(art.val)}</span>` : '<span class="no-fine">Pas d\'amende</span>'}
-                </div>
+                ${fineHTML}
             `;
             grid.appendChild(card);
         });
-        updateStats(articles);
+
+        // Mise à jour des stats
+        const avg = countFines > 0 ? Math.round(totalFines / countFines) : 0;
+        statsBar.innerHTML = `${articles.length} articles affichés | Amende Moyenne: ${formatMoney(avg)}`;
     }
 
-    function updateStats(articles) {
-        const count = articles.length;
-        // Calcul simple de moyenne pour les amendes chiffrées
-        let total = 0;
-        let valid = 0;
-        articles.forEach(a => {
-            if(a.val) { total += a.val; valid++; }
-        });
-        const avg = valid > 0 ? Math.round(total / valid) : 0;
-        statsPanel.innerHTML = `${count} articles affichés | Amende moyenne affichée : ${formatMoney(avg)}`;
-    }
-
-    function filterArticles() {
+    function filterData() {
         const term = searchInput.value.toLowerCase();
         const cat = categoryFilter.value;
 
-        const filtered = db.filter(art => {
-            const matchesText = art.text.toLowerCase().includes(term) || art.id.toString().includes(term);
-            const matchesCat = cat === 'all' || art.cat === cat;
-            return matchesText && matchesCat;
+        const filtered = rawData.filter(art => {
+            const matchesText = art.text.toLowerCase().includes(term) || art.id.toString() === term;
+            const matchesCat = cat === 'all' || art.cat === cat || (cat === 'Vols' && art.cat === 'Vols');
+            // Note: Le filtre catégorie est simple, j'ai mappé les valeurs du select aux données.
+            // Pour les mappages complexes (ex: "Violence" dans le select vs "Justice" dans les données),
+            // on peut affiner, mais ici les données rawData ont déjà des catégories propres.
+            
+            // Correction pour le filtre categorie qui ne matche pas toujours les cats dynamiques
+            if (cat !== 'all' && art.cat !== cat) {
+                 // Logique de regroupement si nécessaire
+                 if (cat === 'Justice' && (art.cat === 'Justice')) return matchesText;
+                 if (cat === 'Violence' && (art.cat === 'Violence')) return matchesText;
+                 return false;
+            }
+            return matchesText;
         });
 
-        renderCards(filtered);
+        render(filtered);
     }
 
-    // Event Listeners
-    searchInput.addEventListener('input', filterArticles);
-    categoryFilter.addEventListener('change', filterArticles);
+    // --- 4. ÉVÉNEMENTS ---
+    searchInput.addEventListener('input', filterData);
+    categoryFilter.addEventListener('change', filterData);
 
-    // Initial Render
-    renderCards(db);
+    // Initialisation
+    render(rawData);
 
 </script>
 
